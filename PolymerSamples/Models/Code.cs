@@ -2,7 +2,7 @@
 {
     public class Code
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string CodeIndex { get; set; }
         public string CodeName { get; set; }
         public string LegacyCodeName { get; set; }
