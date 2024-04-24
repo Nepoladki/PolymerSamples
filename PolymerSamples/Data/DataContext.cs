@@ -14,7 +14,7 @@ namespace PolymerSamples.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CodeVault>()
-                .`(pc => new { pc.VaultId, pc.CodeId } );
+                .HasKey(pc => new { pc.VaultId, pc.CodeId } );
             modelBuilder.Entity<CodeVault>()
                 .HasOne(p => p.Code)
                 .WithMany(pc => pc.CodeVaults)

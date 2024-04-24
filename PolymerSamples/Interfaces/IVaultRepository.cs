@@ -1,0 +1,13 @@
+﻿using PolymerSamples.Models;
+
+namespace PolymerSamples.Interfaces
+{
+    public interface IVaultRepository
+    {
+        ICollection<Vault> GetVaults();
+        Vault GetVault(Guid id);
+        bool VaultExists(Guid id);
+        bool CreateVault(Vault vault);
+        bool Save();
+    }
+}
