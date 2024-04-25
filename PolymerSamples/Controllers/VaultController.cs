@@ -32,11 +32,11 @@ namespace PolymerSamples.Controllers
         [HttpGet("{vaultId}")]
         [ProducesResponseType(200, Type = typeof(Vault))]
         [ProducesResponseType(400)]
-        public IActionResult GetVault(Guid vaultId) 
+        public IActionResult GetVault(Guid vaultId)
         {
-            if(!_vaultRepository.VaultExists(vaultId))
+            if (!_vaultRepository.VaultExists(vaultId))
                 return NotFound();
-            
+
             var vault = _vaultRepository.GetVault(vaultId).AsDTO();
 
             if (!ModelState.IsValid)
@@ -47,7 +47,7 @@ namespace PolymerSamples.Controllers
 
         [HttpPost]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
         public IActionResult CreateVault([FromBody] VaultDTO newVault)
         {
             if (newVault is null)
@@ -63,7 +63,7 @@ namespace PolymerSamples.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var vault = DTOToModel.FromDTO(newVault);
@@ -75,6 +75,29 @@ namespace PolymerSamples.Controllers
             }
 
             return Ok("Succesfully created and saved new vault");
+        }
+
+        [HttpDelete("{vaultId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteVault(Guid vaultId)
+        {
+            if (!_vaultRepository.VaultExists(vaultId))
+                return NotFound();
+
+            var vaultToDelete = _vaultRepository.GetVault(vaultId);
+
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_vaultRepository.DeleteVault(vaultToDelete))
+            {
+                ModelState.AddModelError("", $"Error occured while deleting vault with ID {vaultId}");
+                return BadRequest(ModelState);
+            }
+
+            return Ok($"Successfully deleted vault with ID {vaultId}");
         }
     }
 }

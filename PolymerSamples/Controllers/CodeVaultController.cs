@@ -18,7 +18,7 @@ namespace PolymerSamples.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodeVault>))]
-        public IActionResult GetCodeVaults() 
+        public IActionResult GetCodeVaults()
         {
             var codeVault = _codeVaultRepository.GetCodeVaults().Select(c => c.AsDTO());
 
@@ -43,23 +43,16 @@ namespace PolymerSamples.Controllers
 
             return Ok(codeVault);
         }
+
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateCodeVault(CodeVaultDTO newCodeVault)
         {
-            //var existingCodeVault = _codeVaultRepository.GetCodeVault(newCodeVault.Id);
-
-            //if (existingCodeVault != null)
-            //{
-                //ModelState.AddModelError("", "CodeVault realtion with this ID already exists");
-                //return BadRequest(existingCodeVault);
-            //}
-
-            if(newCodeVault is null)
+            if (newCodeVault is null)
                 return BadRequest(ModelState);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var codeVault = DTOToModel.FromDTO(newCodeVault);
@@ -71,6 +64,29 @@ namespace PolymerSamples.Controllers
             }
 
             return Ok("Succesfully created and saved new code and vault relation");
+        }
+
+        [HttpDelete("{codeVaultId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteCodeVault(Guid codeVaultId)
+        {
+            if(!_codeVaultRepository.CodeVaultExists(codeVaultId))
+                return BadRequest(ModelState);
+
+            var codeVaultToDelete = _codeVaultRepository.GetCodeVault(codeVaultId);
+
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_codeVaultRepository.DeleteCodeVault(codeVaultToDelete))
+            {
+                ModelState.AddModelError("", $"Error occured while deleting code with ID {codeVaultId}");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok($"Succsessfully deleted code with ID {codeVaultId}");
         }
     }
 }

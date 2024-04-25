@@ -8,6 +8,7 @@ namespace PolymerSamples.Interfaces
         CodeVault GetCodeVault(Guid id);
         bool CodeVaultExists(Guid id);
         bool CreateCodeVault(CodeVault codeVault);
+        bool DeleteCodeVault(CodeVault codeVault);
         bool Save();
     }
 }

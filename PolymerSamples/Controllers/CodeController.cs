@@ -47,7 +47,8 @@ namespace PolymerSamples.Controllers
 
         [HttpPost]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
         public IActionResult CreateCode([FromBody] CodeDTO newCode) 
         {
             if(newCode is null)
@@ -76,6 +77,29 @@ namespace PolymerSamples.Controllers
 
             return Ok("Succesfully created and saved new code");
         }
+
+        [HttpDelete("{codeId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteCode(Guid codeId)
+        {
+            if(!_codesRepository.CodeExists(codeId))
+                return NotFound();
+
+            var codeToDelete = _codesRepository.GetCode(codeId);
+
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_codesRepository.DeleteCode(codeToDelete))
+            {
+                ModelState.AddModelError("", $"Error occured while deleting code with ID {codeId}");
+                return BadRequest(ModelState);
+            }
+
+            return Ok($"Succsessfully deleted code with ID {codeId}");
+        }   
     }
 
 }

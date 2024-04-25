@@ -36,5 +36,17 @@ namespace PolymerSamples.Repository
         {
             return _context.SaveChanges() > 0;
         }
+
+        public bool UpdateCode(Code code)
+        {
+            _context.Update(code);
+            return Save();
+        }
+
+        public bool DeleteCode(Code code)
+        {
+            _context.Remove(code);
+            return Save();
+        }
     }
 }
