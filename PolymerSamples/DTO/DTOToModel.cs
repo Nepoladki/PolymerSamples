@@ -30,7 +30,7 @@ namespace PolymerSamples.DTO
         {
             return new CodeVault()
             {
-                Id = codeVaultDto.Id,
+                Id = codeVaultDto.Id == Guid.Empty ? Guid.NewGuid() : codeVaultDto.Id,
                 CodeId = codeVaultDto.CodeId,
                 VaultId = codeVaultDto.VaultId
             };
