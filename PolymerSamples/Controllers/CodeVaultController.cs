@@ -74,12 +74,12 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(404)]
         public IActionResult DeleteCodeVault(Guid codeVaultId)
         {
-            if(!_codeVaultRepository.CodeVaultExists(codeVaultId))
+            if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
                 return BadRequest(ModelState);
 
             var codeVaultToDelete = _codeVaultRepository.GetCodeVault(codeVaultId);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             if (!_codeVaultRepository.DeleteCodeVault(codeVaultToDelete))
@@ -89,30 +89,6 @@ namespace PolymerSamples.Controllers
             }
 
             return Ok($"Succsessfully deleted code with ID {codeVaultId}");
-        }
-        [HttpPatch("{codeVaultId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public IActionResult UpdateCode(Guid codeVaultId, [FromBody] JsonPatchDocument<CodeVault> patchCodeVault)
-        {
-            if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
-                return NotFound();
-
-            var codeVaultToUpdate = _codeVaultRepository.GetCodeVault(codeVaultId);
-
-            patchCodeVault.ApplyTo(codeVaultToUpdate, ModelState);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_codeVaultRepository.UpdateCodeVault(codeVaultToUpdate))
-            {
-                ModelState.AddModelError("", $"Error occured while updating code with ID {codeVaultId}");
-                return BadRequest(ModelState);
-            }
-
-            return Ok($"Succsessfully updated code with ID {codeVaultId}");
         }
     }
 }
