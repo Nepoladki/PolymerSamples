@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
+using PolymerSamples.Repository;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers
@@ -98,6 +100,31 @@ namespace PolymerSamples.Controllers
             }
 
             return Ok($"Successfully deleted vault with ID {vaultId}");
+        }
+
+        [HttpPatch("{vaultId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCode(Guid vaultId, [FromBody] JsonPatchDocument<Vault> patchVault)
+        {
+            if (!_vaultRepository.VaultExists(vaultId))
+                return NotFound();
+
+            var vaultToUpdate = _vaultRepository.GetVault(vaultId);
+
+            patchVault.ApplyTo(vaultToUpdate, ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_vaultRepository.UpdateVault(vaultToUpdate))
+            {
+                ModelState.AddModelError("", $"Error occured while updating code with ID {vaultId}");
+                return BadRequest(ModelState);
+            }
+
+            return Ok($"Succsessfully updated code with ID {vaultId}");
         }
     }
 }

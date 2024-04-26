@@ -3,12 +3,13 @@ using PolymerSamples.Data;
 using PolymerSamples;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Repository;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddTransient<Seed>();
 builder.Services.AddScoped<ICodeRepository, CodeRepository>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();

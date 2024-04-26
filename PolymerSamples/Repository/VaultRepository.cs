@@ -42,5 +42,11 @@ namespace PolymerSamples.Repository
             _context.Remove(vault);
             return Save();
         }
+
+        public bool UpdateVault(Vault vault)
+        {
+            _context.Update(vault);
+            return Save();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
@@ -46,7 +47,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
         public IActionResult CreateCode([FromBody] CodeDTO newCode) 
@@ -79,7 +80,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpDelete("{codeId}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public IActionResult DeleteCode(Guid codeId)
@@ -99,7 +100,32 @@ namespace PolymerSamples.Controllers
             }
 
             return Ok($"Succsessfully deleted code with ID {codeId}");
-        }   
+        }
+
+        [HttpPatch("{codeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCode(Guid codeId, [FromBody] JsonPatchDocument<Code> patchCode)
+        {
+            if (!_codesRepository.CodeExists(codeId))
+                return NotFound();
+
+            var codeToUpdate = _codesRepository.GetCode(codeId);
+
+            patchCode.ApplyTo(codeToUpdate, ModelState);
+      
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_codesRepository.UpdateCode(codeToUpdate))
+            {
+                ModelState.AddModelError("", $"Error occured while updating code with ID {codeId}");
+                return BadRequest(ModelState);
+            }
+
+            return Ok($"Succsessfully updated code with ID {codeId}");
+        }
     }
 
 }

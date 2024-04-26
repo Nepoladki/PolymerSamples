@@ -42,5 +42,11 @@ namespace PolymerSamples.Repository
             _context.Remove(codeVault);
             return Save();
         }
+
+        public bool UpdateCodeVault(CodeVault codeVault)
+        {
+            _context.Update(codeVault);
+            return Save();
+        }
     }
 }
