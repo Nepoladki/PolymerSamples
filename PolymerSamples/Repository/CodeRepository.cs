@@ -15,44 +15,11 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        /*public ICollection<CodesWithVaultsDTO> GetCodes()
-        {
-            var listRes = new List<CodesWithVaultsDTO>();
 
-            var queryResult = _context.Codes
-                .FromSql(@$"SELECT
-                                c.id,
-                                c.code_index,
-                                c.code_name,
-                                c.legacy_code_name,
-                                c.stock_level,
-                                json_agg(json_build_object(
-                                    'vault_id', v.id,
-                                    'vault_name', v.vault_name
-                                )) AS in_vaults,
-                                c.note
-                            FROM
-                                codes c
-                            LEFT JOIN
-                                codes_in_vaults cv ON c.id = cv.code_id
-                            LEFT JOIN
-                                vaults v ON cv.vault_id = v.id
-                            GROUP BY
-                                c.id,
-                                c.code_index,
-                                c.code_name,
-                                c.legacy_code_name,
-                                c.stock_level,
-                                c.note
-                            ORDER BY
-                                c.code_index ASC;").AsNoTracking().ToList();
-
-            return queryResult;
-        }*/
-        public ICollection<CodesWithVaultsDTO> GetCodes()
+        public ICollection<CodesIncludesVaultsDTO> GetCodes()
         {
             return _context.Codes
-                .Select(c => new CodesWithVaultsDTO
+                .Select(c => new CodesIncludesVaultsDTO
                 {
                     id = c.Id,
                     code_index = c.CodeIndex,
@@ -60,7 +27,7 @@ namespace PolymerSamples.Repository
                     legacy_code_name = c.LegacyCodeName,
                     stock_level = c.StockLevel,
                     in_vaults = c.CodeVaults
-                        .Select(cv => new InnerVaultsDTO
+                        .Select(cv => new IncludedVaultsDTO
                         {
                             vault_id = cv.VaultId,
                             vault_name = cv.Vault.VaultName.ToString()
@@ -72,10 +39,7 @@ namespace PolymerSamples.Repository
                 .ToList();
         }
 
-        public Codes GetCode(Guid id)
-        {
-            return _context.Codes.Where(c => c.Id == id).FirstOrDefault();
-        }
+        public Codes GetCode(Guid id) => _context.Codes.Where(c => c.Id == id).FirstOrDefault();
 
         public bool CodeExists(Guid id)
         {

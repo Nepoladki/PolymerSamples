@@ -19,7 +19,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<CodesWithVaultsDTO>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CodesIncludesVaultsDTO>))]
         public IActionResult GetCodes()
         {
             var codes = _codesRepository.GetCodes();

@@ -5,7 +5,7 @@ namespace PolymerSamples.Interfaces
 {
     public interface ICodeRepository
     {
-        ICollection<CodesWithVaultsDTO> GetCodes();
+        ICollection<CodesIncludesVaultsDTO> GetCodes();
         Codes GetCode(Guid id);
         bool CodeExists(Guid id);
         bool CreateCode(Codes code);

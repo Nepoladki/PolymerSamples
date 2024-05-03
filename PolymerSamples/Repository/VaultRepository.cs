@@ -1,6 +1,7 @@
 ﻿using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
+using PolymerSamples.DTO;
 
 namespace PolymerSamples.Repository
 {
@@ -11,20 +12,45 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<Vaults> GetVaults()
+        public ICollection<VaultsIncludesCodesDTO> GetVaults()
         {
-            return _context.Vaults.OrderBy(p => p.Id).ToList();
+            return _context.Vaults
+                .Select(v => new VaultsIncludesCodesDTO
+                {
+                    id = v.Id,
+                    vault_name = v.VaultName,
+                    note = v.Note,
+                    includes = v.CodeVaults
+                        .Select(cv => new IncludedCodesDTO
+                        {
+                            id = cv.CodeId,
+                            code_index = cv.Code.CodeIndex.ToString()
+                        }).ToList()
+                })
+                .OrderBy(v => v.vault_name)
+                .ToList();
         }
-
         public Vaults GetVault(Guid id)
         {
             return _context.Vaults.Where(v => v.Id == id).FirstOrDefault();
         }
-
-        public bool VaultExists(Guid id)
+        public VaultsIncludesCodesDTO GetVaultWithCodes(Guid id)
         {
-            return _context.Vaults.Any(v => v.Id == id);
+            return _context.Vaults.Where(v => v.Id == id)
+                .Select(v => new VaultsIncludesCodesDTO
+                {
+                    id = v.Id,
+                    vault_name = v.VaultName,
+                    note = v.Note,
+                    includes = v.CodeVaults.Select(cv => new IncludedCodesDTO
+                    {
+                        id = cv.CodeId,
+                        code_index = cv.Code.CodeIndex.ToString()
+                    }).ToList()
+                }).FirstOrDefault();
         }
+
+        public bool VaultExists(Guid id) => _context.Vaults.Any(v => v.Id == id);
 
         public bool CreateVault(Vaults vault)
         {
@@ -32,10 +58,7 @@ namespace PolymerSamples.Repository
             return Save();
         }
 
-        public bool Save()
-        {
-            return _context.SaveChanges() > 0;
-        }
+        public bool Save() => _context.SaveChanges() > 0;
 
         public bool DeleteVault(Vaults vault)
         {
