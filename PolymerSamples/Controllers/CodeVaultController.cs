@@ -19,7 +19,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<CodeVault>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CodesVaults>))]
         public IActionResult GetCodeVaults()
         {
             var codeVault = _codeVaultRepository.GetCodeVaults().Select(c => c.AsDTO());
@@ -31,7 +31,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet("{codeVaultId}")]
-        [ProducesResponseType(200, Type = typeof(CodeVault))]
+        [ProducesResponseType(200, Type = typeof(CodesVaults))]
         [ProducesResponseType(400)]
         public IActionResult GetCodeVault(Guid codeVaultId)
         {

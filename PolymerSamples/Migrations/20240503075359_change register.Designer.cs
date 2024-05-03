@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolymerSamples.Data;
@@ -11,9 +12,11 @@ using PolymerSamples.Data;
 namespace PolymerSamples.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240503075359_change register")]
+    partial class changeregister
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,21 +118,18 @@ namespace PolymerSamples.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
+                        .HasColumnType("text");
 
                     b.Property<string>("VaultName")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("vault_name");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("vaults");
+                    b.ToTable("Vaults");
                 });
 
             modelBuilder.Entity("PolymerSamples.Models.CodesVaults", b =>

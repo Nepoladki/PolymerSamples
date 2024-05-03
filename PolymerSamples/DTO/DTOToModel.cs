@@ -5,9 +5,9 @@ namespace PolymerSamples.DTO
 {
     public static class DTOToModel
     {
-        public static Code FromDTO(this CodeDTO codeDto)
+        public static Codes FromDTO(this CodeDTO codeDto)
         {
-            return new Code()
+            return new Codes()
             {
                 Id = codeDto.Id,
                 CodeIndex = codeDto.CodeIndex,
@@ -17,18 +17,18 @@ namespace PolymerSamples.DTO
                 Note = codeDto.Note
             };
         }
-        public static Vault FromDTO(this VaultDTO vaultDto) 
+        public static Vaults FromDTO(this VaultDTO vaultDto) 
         {
-            return new Vault()
+            return new Vaults()
             {
                 Id = vaultDto.Id,
                 VaultName = vaultDto.VaultName,
                 Note = vaultDto.Note
             };
         }
-        public static CodeVault FromDTO(this CodeVaultDTO codeVaultDto)
+        public static CodesVaults FromDTO(this CodeVaultDTO codeVaultDto)
         {
-            return new CodeVault()
+            return new CodesVaults()
             {
                 Id = codeVaultDto.Id == Guid.Empty ? Guid.NewGuid() : codeVaultDto.Id,
                 CodeId = codeVaultDto.CodeId,

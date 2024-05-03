@@ -19,10 +19,10 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Code>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CodesWithVaultsDTO>))]
         public IActionResult GetCodes()
         {
-            var codes = _codesRepository.GetCodes().Select(c => c.AsDTO());
+            var codes = _codesRepository.GetCodes();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -31,7 +31,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet("{codeId}")]
-        [ProducesResponseType(200, Type = typeof(Code))]
+        [ProducesResponseType(200, Type = typeof(Codes))]
         [ProducesResponseType(400)]
         public IActionResult GetCode(Guid codeId) 
         {
@@ -56,7 +56,7 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             var existingCode = _codesRepository.GetCodes()
-                .Where(c => c.CodeName.Trim().ToUpper() == newCode.CodeName.TrimEnd().ToUpper())
+                .Where(c => c.code_name.Trim().ToUpper() == newCode.CodeName.TrimEnd().ToUpper())
                 .FirstOrDefault();
 
             if (existingCode != null)
@@ -106,7 +106,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCode(Guid codeId, [FromBody] JsonPatchDocument<Code> patchCode)
+        public IActionResult UpdateCode(Guid codeId, [FromBody] JsonPatchDocument<Codes> patchCode)
         {
             if (!_codesRepository.CodeExists(codeId))
                 return NotFound();

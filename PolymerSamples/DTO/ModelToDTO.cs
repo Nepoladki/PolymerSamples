@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using PolymerSamples.Models;
+using System.Diagnostics;
 
 namespace PolymerSamples.DTO
 {
     public static class ModelToDTO
     {
-        public static CodeDTO AsDTO(this Code code)
+        public static CodeDTO AsDTO(this Codes code)
         {
             return new CodeDTO
             (
@@ -17,7 +18,7 @@ namespace PolymerSamples.DTO
                 code.Note
             );
         }
-        public static VaultDTO AsDTO(this Vault vault) 
+        public static VaultDTO AsDTO(this Vaults vault) 
         {
             return new VaultDTO
             (
@@ -26,7 +27,7 @@ namespace PolymerSamples.DTO
                 vault.Note
             );
         }
-        public static CodeVaultDTO AsDTO(this CodeVault codeVault)
+        public static CodeVaultDTO AsDTO(this CodesVaults codeVault)
         {
             return new CodeVaultDTO
             (

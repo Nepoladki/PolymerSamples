@@ -4,11 +4,11 @@ namespace PolymerSamples.Interfaces
 {
     public interface ICodeVaultRepository
     {
-        ICollection<CodeVault> GetCodeVaults();
-        CodeVault GetCodeVault(Guid id);
+        ICollection<CodesVaults> GetCodeVaults();
+        CodesVaults GetCodeVault(Guid id);
         bool CodeVaultExists(Guid id);
-        bool CreateCodeVault(CodeVault codeVault);
-        bool DeleteCodeVault(CodeVault codeVault);
+        bool CreateCodeVault(CodesVaults codeVault);
+        bool DeleteCodeVault(CodesVaults codeVault);
         bool Save();
     }
 }

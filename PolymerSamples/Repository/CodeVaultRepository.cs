@@ -11,22 +11,22 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<CodeVault> GetCodeVaults()
+        public ICollection<CodesVaults> GetCodeVaults()
         {
-            return _context.CodeVaults.OrderBy(cv => cv.Id).ToList();
+            return _context.CodesVaults.OrderBy(cv => cv.Id).ToList();
         }
 
-        public CodeVault GetCodeVault(Guid id)
+        public CodesVaults GetCodeVault(Guid id)
         {
-            return _context.CodeVaults.Where(cv => cv.Id == id).FirstOrDefault();
+            return _context.CodesVaults.Where(cv => cv.Id == id).FirstOrDefault();
         }
 
         public bool CodeVaultExists(Guid id)
         {
-            return _context.CodeVaults.Any(cv => cv.Id == id);
+            return _context.CodesVaults.Any(cv => cv.Id == id);
         }
 
-        public bool CreateCodeVault(CodeVault codeVault)
+        public bool CreateCodeVault(CodesVaults codeVault)
         {
             _context.Add(codeVault);
             return Save();
@@ -37,7 +37,7 @@ namespace PolymerSamples.Repository
             return _context.SaveChanges() > 0;
         }
 
-        public bool DeleteCodeVault(CodeVault codeVault)
+        public bool DeleteCodeVault(CodesVaults codeVault)
         {
             _context.Remove(codeVault);
             return Save();

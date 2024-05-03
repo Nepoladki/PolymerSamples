@@ -11,12 +11,12 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<Vault> GetVaults()
+        public ICollection<Vaults> GetVaults()
         {
             return _context.Vaults.OrderBy(p => p.Id).ToList();
         }
 
-        public Vault GetVault(Guid id)
+        public Vaults GetVault(Guid id)
         {
             return _context.Vaults.Where(v => v.Id == id).FirstOrDefault();
         }
@@ -26,7 +26,7 @@ namespace PolymerSamples.Repository
             return _context.Vaults.Any(v => v.Id == id);
         }
 
-        public bool CreateVault(Vault vault)
+        public bool CreateVault(Vaults vault)
         {
             _context.Add(vault);
             return Save();
@@ -37,13 +37,13 @@ namespace PolymerSamples.Repository
             return _context.SaveChanges() > 0;
         }
 
-        public bool DeleteVault(Vault vault)
+        public bool DeleteVault(Vaults vault)
         {
             _context.Remove(vault);
             return Save();
         }
 
-        public bool UpdateVault(Vault vault)
+        public bool UpdateVault(Vaults vault)
         {
             _context.Update(vault);
             return Save();

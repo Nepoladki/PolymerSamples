@@ -4,12 +4,12 @@ namespace PolymerSamples.Interfaces
 {
     public interface IVaultRepository
     {
-        ICollection<Vault> GetVaults();
-        Vault GetVault(Guid id);
+        ICollection<Vaults> GetVaults();
+        Vaults GetVault(Guid id);
         bool VaultExists(Guid id);
-        bool CreateVault(Vault vault);
-        bool DeleteVault(Vault vault);
-        bool UpdateVault(Vault vault);
+        bool CreateVault(Vaults vault);
+        bool DeleteVault(Vaults vault);
+        bool UpdateVault(Vaults vault);
         bool Save();
     }
 }

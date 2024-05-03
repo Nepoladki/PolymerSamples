@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolymerSamples.Data;
 
 #nullable disable
@@ -12,8 +12,8 @@ using PolymerSamples.Data;
 namespace PolymerSamples.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240426070921_add user table, tried to change key of codevault table")]
-    partial class addusertabletriedtochangekeyofcodevaulttable
+    [Migration("20240503075934_change register vaults")]
+    partial class changeregistervaults
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,49 +21,58 @@ namespace PolymerSamples.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.4")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("PolymerSamples.Models.Code", b =>
+            modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("CodeIndex")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("code_index");
 
                     b.Property<string>("CodeName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("code_name");
 
                     b.Property<string>("LegacyCodeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("legacy_code_name");
 
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("note");
 
                     b.Property<string>("StockLevel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("stock_level");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Codes");
+                    b.ToTable("codes");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.CodeVault", b =>
+            modelBuilder.Entity("PolymerSamples.Models.CodesVaults", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Guid>("CodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("code_id");
 
                     b.Property<Guid>("VaultId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("vault_id");
 
                     b.HasKey("Id");
 
@@ -71,62 +80,67 @@ namespace PolymerSamples.Migrations
 
                     b.HasIndex("VaultId");
 
-                    b.ToTable("CodeVaults");
+                    b.ToTable("codes_in_vaults");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.User", b =>
+            modelBuilder.Entity("PolymerSamples.Models.Users", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("password");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("role");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("users");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.Vault", b =>
+            modelBuilder.Entity("PolymerSamples.Models.Vaults", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("VaultName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vaults");
+                    b.ToTable("vaults");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.CodeVault", b =>
+            modelBuilder.Entity("PolymerSamples.Models.CodesVaults", b =>
                 {
-                    b.HasOne("PolymerSamples.Models.Code", "Code")
+                    b.HasOne("PolymerSamples.Models.Codes", "Code")
                         .WithMany("CodeVaults")
                         .HasForeignKey("CodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PolymerSamples.Models.Vault", "Vault")
+                    b.HasOne("PolymerSamples.Models.Vaults", "Vault")
                         .WithMany("CodeVaults")
                         .HasForeignKey("VaultId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -137,12 +151,12 @@ namespace PolymerSamples.Migrations
                     b.Navigation("Vault");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.Code", b =>
+            modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
                 {
                     b.Navigation("CodeVaults");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.Vault", b =>
+            modelBuilder.Entity("PolymerSamples.Models.Vaults", b =>
                 {
                     b.Navigation("CodeVaults");
                 });

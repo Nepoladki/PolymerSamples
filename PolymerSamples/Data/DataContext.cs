@@ -7,20 +7,20 @@ namespace PolymerSamples.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<Code> Codes { get; set; }
-        public DbSet<Vault> Vaults { get; set; }
-        public DbSet<CodeVault> CodeVaults { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<Codes> Codes { get; set; }
+        public DbSet<Vaults> Vaults { get; set; }
+        public DbSet<CodesVaults> CodesVaults { get; set; }
+        public DbSet<Users> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CodeVault>()
+            modelBuilder.Entity<CodesVaults>()
                 .HasKey(cv => cv.Id);
-            modelBuilder.Entity<CodeVault>()
+            modelBuilder.Entity<CodesVaults>()
                 .HasOne(cv => cv.Code)
                 .WithMany(cv => cv.CodeVaults)
                 .HasForeignKey(cv => cv.CodeId);
-            modelBuilder.Entity<CodeVault>()
+            modelBuilder.Entity<CodesVaults>()
                 .HasOne(cv => cv.Vault)
                 .WithMany(cv => cv.CodeVaults)
                 .HasForeignKey(cv => cv.VaultId);

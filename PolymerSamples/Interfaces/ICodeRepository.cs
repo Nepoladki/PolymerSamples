@@ -1,15 +1,16 @@
-﻿using PolymerSamples.Models;
+﻿using PolymerSamples.DTO;
+using PolymerSamples.Models;
 
 namespace PolymerSamples.Interfaces
 {
     public interface ICodeRepository
     {
-        ICollection<Code> GetCodes();
-        Code GetCode(Guid id);
+        ICollection<CodesWithVaultsDTO> GetCodes();
+        Codes GetCode(Guid id);
         bool CodeExists(Guid id);
-        bool CreateCode(Code code);
-        bool UpdateCode(Code code);
-        bool DeleteCode(Code code);
+        bool CreateCode(Codes code);
+        bool UpdateCode(Codes code);
+        bool DeleteCode(Codes code);
         bool Save();
 
     }

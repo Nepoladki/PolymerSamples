@@ -20,7 +20,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Vault>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Vaults>))]
         public IActionResult GetVaults()
         {
             var vaults = _vaultRepository.GetVaults().Select(c => c.AsDTO());
@@ -32,7 +32,7 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet("{vaultId}")]
-        [ProducesResponseType(200, Type = typeof(Vault))]
+        [ProducesResponseType(200, Type = typeof(Vaults))]
         [ProducesResponseType(400)]
         public IActionResult GetVault(Guid vaultId)
         {
@@ -106,7 +106,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCode(Guid vaultId, [FromBody] JsonPatchDocument<Vault> patchVault)
+        public IActionResult UpdateCode(Guid vaultId, [FromBody] JsonPatchDocument<Vaults> patchVault)
         {
             if (!_vaultRepository.VaultExists(vaultId))
                 return NotFound();
