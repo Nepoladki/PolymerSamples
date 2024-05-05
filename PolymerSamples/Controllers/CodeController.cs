@@ -10,7 +10,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
-    public class CodeController : Controller
+    public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
         public CodeController(ICodeRepository codesRepository)
@@ -59,7 +59,7 @@ namespace PolymerSamples.Controllers
                 .Where(c => c.code_name.Trim().ToUpper() == newCode.CodeName.TrimEnd().ToUpper())
                 .FirstOrDefault();
 
-            if (existingCode != null)
+            if (existingCode is not null)
             {
                 ModelState.AddModelError("", "Code already exists");
                 return StatusCode(422, ModelState);

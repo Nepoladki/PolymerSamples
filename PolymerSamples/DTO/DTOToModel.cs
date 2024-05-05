@@ -35,5 +35,16 @@ namespace PolymerSamples.DTO
                 VaultId = codeVaultDto.VaultId
             };
         }
+        public static Users FromDTO(this CreateUserDTO userDto)
+        {
+            return new Users()
+            {
+                Id = Guid.NewGuid(),
+                UserName = userDto.UserName,
+                Password = userDto.Password,
+                Roles = userDto.Roles is null ? ["user"] : userDto.Roles, //Может ли вообще с фэ прийти null? Спросить у Егора
+                IsActive = true,
+            };
+        }
     }
 }
