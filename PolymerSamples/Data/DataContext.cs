@@ -11,6 +11,7 @@ namespace PolymerSamples.Data
         public DbSet<Vaults> Vaults { get; set; }
         public DbSet<CodesVaults> CodesVaults { get; set; }
         public DbSet<Users> Users { get; set; }
+        public DbSet<SampleTypes> SampleTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,10 @@ namespace PolymerSamples.Data
                 .HasOne(cv => cv.Vault)
                 .WithMany(cv => cv.CodeVaults)
                 .HasForeignKey(cv => cv.VaultId);
+            modelBuilder.Entity<SampleTypes>()
+                .HasMany(t => t.Code)
+                .WithOne(c => c.SampleType)
+                .HasForeignKey(c => c.TypeId);
         }
     }
 }

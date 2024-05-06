@@ -15,7 +15,9 @@ namespace PolymerSamples.DTO
                 code.CodeName,
                 code.LegacyCodeName,
                 code.StockLevel,
-                code.Note
+                code.Note,
+                code.TypeId,
+                code.Thickness
             );
         }
         public static VaultDTO AsDTO(this Vaults vault) 

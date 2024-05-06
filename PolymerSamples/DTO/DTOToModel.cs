@@ -14,7 +14,9 @@ namespace PolymerSamples.DTO
                 CodeName = codeDto.CodeName,
                 LegacyCodeName = codeDto.LegacyCodeName,
                 StockLevel = codeDto.StockLevel ?? "empty",
-                Note = codeDto.Note
+                Note = codeDto.Note,
+                TypeId = codeDto.TypeId,
+                Thickness = codeDto.Thickness
             };
         }
         public static Vaults FromDTO(this VaultDTO vaultDto) 
