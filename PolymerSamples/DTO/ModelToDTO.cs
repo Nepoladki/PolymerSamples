@@ -36,5 +36,15 @@ namespace PolymerSamples.DTO
                 codeVault.VaultId
             );
         }
+        public static UserDTO AsDTO(this Users user)
+        {
+            return new UserDTO
+            (
+                user.Id,
+                user.UserName,
+                user.Roles,
+                user.IsActive
+            );
+        }
     }
 }

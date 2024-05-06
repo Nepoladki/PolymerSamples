@@ -1,6 +1,6 @@
 ﻿namespace PolymerSamples.DTO
 {
-    public record class CreateUserDTO
+    public record class UserWithPasswordDTO
     (
       Guid Id,
       string UserName,

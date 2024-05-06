@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PolymerSamples.Data;
@@ -39,10 +42,10 @@ namespace PolymerSamples.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(Users))]
-        [ProducesResponseType(400)]
-        public IActionResult GetUsers(Guid id)
+        [ProducesResponseType(404)]
+        public IActionResult GetUser(Guid id)
         {
-            if (_repository.UserExists(id))
+            if(!_repository.UserExists(id))
                 return NotFound();
                 
             var user = _repository.GetUser(id);
@@ -50,21 +53,21 @@ namespace PolymerSamples.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(user);
+            return Ok(user.AsDTO());
         }
 
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
-        public IActionResult PostUsers([FromBody]CreateUserDTO user)
+        public IActionResult PostUsers([FromBody] UserWithPasswordDTO user)
         {
             if(user is null)
                 return BadRequest(ModelState);
 
             var existingUser = _repository.GetAllUsers().Where(u => u.UserName.Trim() == user.UserName.Trim());
 
-            if(existingUser is null)
+            if(existingUser is not null)
             {
                 ModelState.AddModelError("", $"User with name {user.UserName} already exists. Try another name");
                 return BadRequest(ModelState);
@@ -79,15 +82,64 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
             }
 
-            var newUser = user.FromDTO();
+            var hasher = new PasswordHasher();
+            string hashedPassword = hasher.HashPassword(user.Password);
+
+            var newUser = user.FromDTO(hashedPassword);
 
             if (!_repository.CreateUser(newUser))
             {
-                ModelState.AddModelError("", $"Error occure while saving new user {user.UserName}");
+                ModelState.AddModelError("", $"Error occured while saving new user {user.UserName}");
                 return StatusCode(500, ModelState);
             }
 
-            return Ok(newUser); //Возвращать надо DTO без пароля, а не то что возвращается сейчас
+            return Ok(newUser.AsDTO());
+        }
+
+        [HttpPatch]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateUser(Guid id, [FromBody] JsonPatchDocument<Users> patchUser)
+        {
+            var userToUpdate = _repository.GetUser(id);
+
+            if(userToUpdate is null) 
+            {
+                ModelState.AddModelError("", $"User with this id {id} doesn't exist");
+                return NotFound(ModelState);
+            }
+
+            foreach(var op in patchUser.Operations)
+            {
+                if(op.path == "/Password" && op.OperationType == Microsoft.AspNetCore.JsonPatch.Operations.OperationType.Replace)
+                {
+                    if(op.value.ToString().Length < 6)
+                    {
+                        ModelState.AddModelError("", "Password length must be 6 symbols or more");
+                        return BadRequest(ModelState);
+                    }
+
+                    var hasher = new PasswordHasher();
+                    op.value = hasher.HashPassword(op.value.ToString());
+                    break;
+                } 
+            }
+
+            patchUser.ApplyTo(userToUpdate, ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_repository.UpdateUser(userToUpdate))
+            {
+                ModelState.AddModelError("", $"Error occured while saving updates for user with id {id}");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok($"Sucsessfully updated user with id {id}");
+                
+                
         }
 
         [HttpDelete("{id}")]
