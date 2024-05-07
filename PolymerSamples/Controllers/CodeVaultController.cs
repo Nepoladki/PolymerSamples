@@ -20,14 +20,14 @@ namespace PolymerSamples.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodesVaults>))]
-        public IActionResult GetCodeVaults()
+        public IActionResult GetAllCodeVaults()
         {
-            var codeVault = _codeVaultRepository.GetCodeVaults().Select(c => c.AsDTO());
+            var codeVaults = _codeVaultRepository.GetCodeVaults().Select(c => c.AsDTO());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(codeVault);
+            return Ok(codeVaults);
         }
 
         [HttpGet("{codeVaultId}")]

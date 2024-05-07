@@ -19,10 +19,10 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<CodesIncludesVaultsDTO>))]
-        public IActionResult GetCodes()
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CodeIncludesVaultsDTO>))]
+        public IActionResult GetAllCodes()
         {
-            var codes = _codesRepository.GetCodes();
+            var codes = _codesRepository.GetAllCodesIncludingVaults();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -38,7 +38,7 @@ namespace PolymerSamples.Controllers
             if (!_codesRepository.CodeExists(codeId))
                 return NotFound();
 
-            var code = _codesRepository.GetCode(codeId).AsDTO();
+            var code = _codesRepository.GetCodeById(codeId).AsDTO();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -48,22 +48,17 @@ namespace PolymerSamples.Controllers
 
         [HttpPost]
         [ProducesResponseType(200)]
-        [ProducesResponseType(422)]
+        [ProducesResponseType(409)]
         [ProducesResponseType(500)]
         public IActionResult CreateCode([FromBody] CodeDTO newCode) 
         {
             if(newCode is null)
                 return BadRequest(ModelState);
 
-            var existingCode = _codesRepository.GetCodes()
-                .Where(c => c.code_name.Trim().ToUpper() == newCode.CodeName.TrimEnd().ToUpper())
-                .FirstOrDefault();
+            var existingCode = _codesRepository.GetCodeWithCurrentName(newCode.CodeName);
 
             if (existingCode is not null)
-            {
-                ModelState.AddModelError("", "Code already exists");
-                return StatusCode(422, ModelState);
-            }
+                return StatusCode(409, $"Code with this name already exists, its id is {existingCode.Id}");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -71,10 +66,7 @@ namespace PolymerSamples.Controllers
             var code = DTOToModel.FromDTO(newCode);
             
             if (!_codesRepository.CreateCode(code))
-            {
-                ModelState.AddModelError("", "Saving Error");
-                return StatusCode(500, ModelState);
-            }
+                return StatusCode(500, "Error occured while saving data to database");
 
             return Ok("Succesfully created and saved new code");
         }
@@ -88,7 +80,7 @@ namespace PolymerSamples.Controllers
             if(!_codesRepository.CodeExists(codeId))
                 return NotFound();
 
-            var codeToDelete = _codesRepository.GetCode(codeId);
+            var codeToDelete = _codesRepository.GetCodeById(codeId);
 
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -111,7 +103,7 @@ namespace PolymerSamples.Controllers
             if (!_codesRepository.CodeExists(codeId))
                 return NotFound();
 
-            var codeToUpdate = _codesRepository.GetCode(codeId);
+            var codeToUpdate = _codesRepository.GetCodeById(codeId);
 
             patchCode.ApplyTo(codeToUpdate, ModelState);
       

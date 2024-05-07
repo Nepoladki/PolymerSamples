@@ -12,10 +12,10 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<VaultsIncludesCodesDTO> GetVaults()
+        public ICollection<VaultIncludesCodesDTO> GetVaults()
         {
             return _context.Vaults
-                .Select(v => new VaultsIncludesCodesDTO
+                .Select(v => new VaultIncludesCodesDTO
                 {
                     id = v.Id,
                     vault_name = v.VaultName,
@@ -34,10 +34,10 @@ namespace PolymerSamples.Repository
         {
             return _context.Vaults.Where(v => v.Id == id).FirstOrDefault();
         }
-        public VaultsIncludesCodesDTO GetVaultWithCodes(Guid id)
+        public VaultIncludesCodesDTO GetVaultWithCodes(Guid id)
         {
             return _context.Vaults.Where(v => v.Id == id)
-                .Select(v => new VaultsIncludesCodesDTO
+                .Select(v => new VaultIncludesCodesDTO
                 {
                     id = v.Id,
                     vault_name = v.VaultName,
@@ -54,7 +54,7 @@ namespace PolymerSamples.Repository
 
         public bool CreateVault(Vaults vault)
         {
-            _context.Vaults.Add(vault);
+            _context.Add(vault);
             return Save();
         }
 
@@ -70,6 +70,23 @@ namespace PolymerSamples.Repository
         {
             _context.Update(vault);
             return Save();
+        }
+
+        public VaultWithAllIncludingDataDTO GetVaultWithAllIncludingData(Guid id)
+        {
+            _context.Vaults.Select(v => new VaultWithAllIncludingDataDTO
+            {
+                vault_data =  new IncludedVaultsDTO
+                {
+                    vault_id = v.Id,
+                    vault_name = v.VaultName
+                },
+                code_data =  new IncludedCodesDTO
+                {
+
+                },
+                code_vault_id = v.CodeVaults.Where(cv => cv.Id == id).Select(cv => cv.Id))
+            });
         }
     }
 }

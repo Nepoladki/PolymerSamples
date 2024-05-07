@@ -5,8 +5,9 @@ namespace PolymerSamples.Interfaces
 {
     public interface IVaultRepository
     {
-        ICollection<VaultsIncludesCodesDTO> GetVaults();
-        VaultsIncludesCodesDTO GetVaultWithCodes(Guid id);
+        ICollection<VaultIncludesCodesDTO> GetVaults();
+        VaultIncludesCodesDTO GetVaultWithCodes(Guid id);
+        VaultWithAllIncludingDataDTO GetVaultWithAllIncludingData(Guid id);
         Vaults GetVault(Guid id);
         bool VaultExists(Guid id);
         bool CreateVault(Vaults vault);

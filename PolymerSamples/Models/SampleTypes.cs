@@ -10,7 +10,7 @@ namespace PolymerSamples.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
-        [Column("type_name")] public string TypeName { get; set; }
+        [Column("type_name")] [Required] public required string TypeName { get; set; }
         public ICollection<Codes> Code { get; set; }
     }
 }

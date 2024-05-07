@@ -4,7 +4,7 @@
     (
         Guid Id,
         string VaultName,
-        string Note
+        string? Note
     );
     
 }

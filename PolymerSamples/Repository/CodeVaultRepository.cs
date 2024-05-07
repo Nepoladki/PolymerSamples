@@ -11,12 +11,12 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<CodesVaults> GetCodeVaults()
+        public ICollection<CodesVaults> GetAllCodeVaults()
         {
             return _context.CodesVaults.OrderBy(cv => cv.Id).ToList();
         }
 
-        public CodesVaults GetCodeVault(Guid id)
+        public CodesVaults GetCodeVaultById(Guid id)
         {
             return _context.CodesVaults.Where(cv => cv.Id == id).FirstOrDefault();
         }

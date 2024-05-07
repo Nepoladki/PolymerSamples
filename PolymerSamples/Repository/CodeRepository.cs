@@ -16,10 +16,11 @@ namespace PolymerSamples.Repository
             _context = context;
         }
 
-        public ICollection<CodesIncludesVaultsDTO> GetCodes()
+        public ICollection<CodeIncludesVaultsDTO> GetAllCodesIncludingVaults()
         {
             return _context.Codes
-                .Select(c => new CodesIncludesVaultsDTO
+                .AsNoTracking()
+                .Select(c => new CodeIncludesVaultsDTO
                 {
                     id = c.Id,
                     code_index = c.CodeIndex,
@@ -42,8 +43,11 @@ namespace PolymerSamples.Repository
                 .ToList();
         }
 
-        public Codes GetCode(Guid id) => _context.Codes.Where(c => c.Id == id).FirstOrDefault();
-
+        public Codes GetCodeById(Guid id) => _context.Codes.AsNoTracking().FirstOrDefault(c => c.Id == id);
+        public Codes? GetCodeWithCurrentName(string name)
+        {
+            return _context.Codes.AsNoTracking().FirstOrDefault(c => c.CodeName == name.Trim());
+        }
         public bool CodeExists(Guid id)
         {
             return _context.Codes.Any(c => c.Id == id);
