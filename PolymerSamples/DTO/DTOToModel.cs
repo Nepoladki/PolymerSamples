@@ -16,6 +16,7 @@ namespace PolymerSamples.DTO
                 StockLevel = codeDto.StockLevel ?? "empty",
                 Note = codeDto.Note,
                 TypeId = codeDto.TypeId,
+                Layers = codeDto.Layers,
                 Thickness = codeDto.Thickness
             };
         }

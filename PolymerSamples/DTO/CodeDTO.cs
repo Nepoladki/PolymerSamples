@@ -9,6 +9,7 @@
             string? StockLevel,
             string? Note,
             int TypeId,
+            int Layers,
             float Thickness
         );
 }

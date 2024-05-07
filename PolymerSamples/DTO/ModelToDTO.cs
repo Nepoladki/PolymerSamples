@@ -17,6 +17,7 @@ namespace PolymerSamples.DTO
                 code.StockLevel,
                 code.Note,
                 code.TypeId,
+                code.Layers,
                 code.Thickness
             );
         }

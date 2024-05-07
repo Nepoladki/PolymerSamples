@@ -33,6 +33,9 @@ namespace PolymerSamples.Repository
                             vault_name = cv.Vault.VaultName.ToString()
                         })
                         .ToList(),
+                    layers = c.Layers,
+                    thickness = c.Thickness,
+                    type = c.SampleType.TypeName,
                     note = c.Note
                 })
                 .OrderBy(c => c.code_index)

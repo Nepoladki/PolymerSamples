@@ -15,7 +15,7 @@ namespace PolymerSamples.Models
         [Column("type_id")] public int TypeId { get; set; }
         [Column("number_of_layers")] public int Layers { get; set; }
         [Column("thickness")] public float Thickness { get; set; }
-        public SampleTypes SampleType { get; set; }
         public ICollection<CodesVaults> CodeVaults { get; set; }
+        public SampleTypes SampleType { get; set; }
     }
 }
