@@ -15,7 +15,10 @@ namespace PolymerSamples.DTO
                 code.CodeName,
                 code.LegacyCodeName,
                 code.StockLevel,
-                code.Note
+                code.Note,
+                code.TypeId,
+                code.Layers,
+                code.Thickness
             );
         }
         public static VaultDTO AsDTO(this Vaults vault) 
@@ -34,6 +37,16 @@ namespace PolymerSamples.DTO
                 codeVault.Id,
                 codeVault.CodeId,
                 codeVault.VaultId
+            );
+        }
+        public static UserDTO AsDTO(this Users user)
+        {
+            return new UserDTO
+            (
+                user.Id,
+                user.UserName,
+                user.Roles,
+                user.IsActive
             );
         }
     }

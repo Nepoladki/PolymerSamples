@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolymerSamples.Data;
@@ -12,9 +13,11 @@ using PolymerSamples.Data;
 namespace PolymerSamples.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240507073357_added sample types table")]
+    partial class addedsampletypestable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,8 +68,6 @@ namespace PolymerSamples.Migrations
                         .HasColumnName("type_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TypeId");
 
                     b.ToTable("codes");
                 });
@@ -166,17 +167,6 @@ namespace PolymerSamples.Migrations
                     b.ToTable("vaults");
                 });
 
-            modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
-                {
-                    b.HasOne("PolymerSamples.Models.SampleTypes", "SampleType")
-                        .WithMany("Code")
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SampleType");
-                });
-
             modelBuilder.Entity("PolymerSamples.Models.CodesVaults", b =>
                 {
                     b.HasOne("PolymerSamples.Models.Codes", "Code")
@@ -199,11 +189,6 @@ namespace PolymerSamples.Migrations
             modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
                 {
                     b.Navigation("CodeVaults");
-                });
-
-            modelBuilder.Entity("PolymerSamples.Models.SampleTypes", b =>
-                {
-                    b.Navigation("Code");
                 });
 
             modelBuilder.Entity("PolymerSamples.Models.Vaults", b =>

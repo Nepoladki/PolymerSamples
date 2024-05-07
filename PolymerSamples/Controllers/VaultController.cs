@@ -11,7 +11,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/vaults/[controller]")]
     [ApiController]
-    public class VaultController : Controller
+    public class VaultController : ControllerBase 
     {
         private readonly IVaultRepository _vaultRepository;
         public VaultController(IVaultRepository vaultRepository)

@@ -13,6 +13,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<ICodeRepository, CodeRepository>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();
 builder.Services.AddScoped<ICodeVaultRepository, CodeVaultRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

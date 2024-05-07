@@ -7,6 +7,9 @@
             string CodeName,
             string? LegacyCodeName,
             string? StockLevel,
-            string? Note
+            string? Note,
+            int TypeId,
+            int Layers,
+            float Thickness
         );
 }

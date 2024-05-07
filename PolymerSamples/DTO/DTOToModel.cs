@@ -14,7 +14,10 @@ namespace PolymerSamples.DTO
                 CodeName = codeDto.CodeName,
                 LegacyCodeName = codeDto.LegacyCodeName,
                 StockLevel = codeDto.StockLevel ?? "empty",
-                Note = codeDto.Note
+                Note = codeDto.Note,
+                TypeId = codeDto.TypeId,
+                Layers = codeDto.Layers,
+                Thickness = codeDto.Thickness
             };
         }
         public static Vaults FromDTO(this VaultDTO vaultDto) 
@@ -33,6 +36,17 @@ namespace PolymerSamples.DTO
                 Id = codeVaultDto.Id == Guid.Empty ? Guid.NewGuid() : codeVaultDto.Id,
                 CodeId = codeVaultDto.CodeId,
                 VaultId = codeVaultDto.VaultId
+            };
+        }
+        public static Users FromDTO(this UserWithPasswordDTO userDto, string passwordHash)
+        {
+            return new Users()
+            {
+                Id = userDto.Id == Guid.Empty ? Guid.NewGuid() : userDto.Id,
+                UserName = userDto.UserName.Trim(),
+                Password = passwordHash,
+                Roles = userDto.Roles is null ? ["user"] : userDto.Roles, //Может ли вообще с фэ прийти null? Спросить у Егора
+                IsActive = userDto.IsActive,
             };
         }
     }

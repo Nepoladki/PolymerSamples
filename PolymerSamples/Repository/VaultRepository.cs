@@ -54,7 +54,7 @@ namespace PolymerSamples.Repository
 
         public bool CreateVault(Vaults vault)
         {
-            _context.Add(vault);
+            _context.Vaults.Add(vault);
             return Save();
         }
 

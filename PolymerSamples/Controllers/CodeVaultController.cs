@@ -10,7 +10,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codesinvaults/[Controller]")]
     [ApiController]
-    public class CodeVaultController : Controller
+    public class CodeVaultController : ControllerBase
     {
         private readonly ICodeVaultRepository _codeVaultRepository;
         public CodeVaultController(ICodeVaultRepository codeVaultRepository)
