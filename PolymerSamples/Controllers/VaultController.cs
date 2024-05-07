@@ -23,7 +23,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<VaultIncludesCodesDTO>))]
         public IActionResult GetVaults()
         {
-            var vaults = _vaultRepository.GetVaults();
+            var vaults = _vaultRepository.GetAllVaults();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -34,12 +34,12 @@ namespace PolymerSamples.Controllers
         [HttpGet("{vaultId}")]
         [ProducesResponseType(200, Type = typeof(Vaults))]
         [ProducesResponseType(400)]
-        public IActionResult GetVaultWithCodes(Guid vaultId)
+        public IActionResult GetCodeVaultWithCodesAndVaultsByVaultId(Guid vaultId)
         {
             if (!_vaultRepository.VaultExists(vaultId))
                 return NotFound();
 
-            var vault = _vaultRepository.GetVaultWithCodes(vaultId);
+            var vault = _vaultRepository.GetVaultWithCodesAndCivId(vaultId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -55,7 +55,7 @@ namespace PolymerSamples.Controllers
             if (newVault is null)
                 return BadRequest(ModelState);
 
-            var existingVault = _vaultRepository.GetVaults()
+            var existingVault = _vaultRepository.GetAllVaults()
                 .Where(v => v.vault_name.Trim().ToUpper() == newVault.VaultName.TrimEnd().ToUpper())
                 .FirstOrDefault();
 

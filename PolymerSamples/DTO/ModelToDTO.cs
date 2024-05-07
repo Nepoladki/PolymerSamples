@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PolymerSamples.Models;
-using System.Diagnostics;
+﻿using PolymerSamples.Models;
 
 namespace PolymerSamples.DTO
 {

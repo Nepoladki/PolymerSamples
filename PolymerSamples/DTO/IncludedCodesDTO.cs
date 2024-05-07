@@ -2,7 +2,7 @@
 {
     public class IncludedCodesDTO
     {
-        public Guid id { get; set; }
+        public Guid code_id { get; set; }
         public required string code_index { get; set; }
     }
 }

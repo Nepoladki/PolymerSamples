@@ -3,8 +3,6 @@ using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.DTO;
-using System.Text.RegularExpressions;
-using System.Net;
 
 namespace PolymerSamples.Repository
 {

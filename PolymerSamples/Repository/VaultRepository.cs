@@ -12,7 +12,7 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<VaultIncludesCodesDTO> GetVaults()
+        public ICollection<VaultIncludesCodesDTO> GetAllVaults()
         {
             return _context.Vaults
                 .Select(v => new VaultIncludesCodesDTO
@@ -23,7 +23,7 @@ namespace PolymerSamples.Repository
                     includes = v.CodeVaults
                         .Select(cv => new IncludedCodesDTO
                         {
-                            id = cv.CodeId,
+                            code_id = cv.CodeId,
                             code_index = cv.Code.CodeIndex.ToString()
                         }).ToList()
                 })
@@ -44,7 +44,7 @@ namespace PolymerSamples.Repository
                     note = v.Note,
                     includes = v.CodeVaults.Select(cv => new IncludedCodesDTO
                     {
-                        id = cv.CodeId,
+                        code_id = cv.CodeId,
                         code_index = cv.Code.CodeIndex.ToString()
                     }).ToList()
                 }).FirstOrDefault();
@@ -71,22 +71,24 @@ namespace PolymerSamples.Repository
             _context.Update(vault);
             return Save();
         }
-
-        public VaultWithAllIncludingDataDTO GetVaultWithAllIncludingData(Guid id)
+        public ICollection<VaultIncludesCodesDTO>? GetVaultWithCodesAndCivId(Guid vaultId)
         {
-            _context.Vaults.Select(v => new VaultWithAllIncludingDataDTO
-            {
-                vault_data =  new IncludedVaultsDTO
+            return _context.Vaults
+                .Where(v => v.Id == vaultId)
+                .Select(v => new VaultIncludesCodesDTO
                 {
-                    vault_id = v.Id,
-                    vault_name = v.VaultName
-                },
-                code_data =  new IncludedCodesDTO
-                {
-
-                },
-                code_vault_id = v.CodeVaults.Where(cv => cv.Id == id).Select(cv => cv.Id))
-            });
+                    id = v.CodeVaults.Select(cv => cv.Id).FirstOrDefault(),
+                    vault_name = v.VaultName,
+                    note = v.Note,
+                    includes = v.CodeVaults
+                        .Select(cv => new IncludedCodesDTO
+                        {
+                            code_id = cv.CodeId,
+                            code_index = cv.Code.CodeIndex.ToString()
+                        }).ToList()
+                })
+                .OrderBy(v => v.vault_name)
+                .ToList();
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
-using PolymerSamples.Repository;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers
@@ -22,7 +20,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodesVaults>))]
         public IActionResult GetAllCodeVaults()
         {
-            var codeVaults = _codeVaultRepository.GetCodeVaults().Select(c => c.AsDTO());
+            var codeVaults = _codeVaultRepository.GetAllCodeVaults().Select(c => c.AsDTO());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -38,7 +36,7 @@ namespace PolymerSamples.Controllers
             if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
                 return NotFound();
 
-            var codeVault = _codeVaultRepository.GetCodeVault(codeVaultId).AsDTO();
+            var codeVault = _codeVaultRepository.GetCodeVaultById(codeVaultId).AsDTO();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -77,7 +75,7 @@ namespace PolymerSamples.Controllers
             if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
                 return BadRequest(ModelState);
 
-            var codeVaultToDelete = _codeVaultRepository.GetCodeVault(codeVaultId);
+            var codeVaultToDelete = _codeVaultRepository.GetCodeVaultById(codeVaultId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
