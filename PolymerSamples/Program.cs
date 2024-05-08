@@ -22,6 +22,17 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection"));
     options.EnableSensitiveDataLogging(true);
 });
+// CORS setup
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("defaultPolicy", policyBuilder =>
+    {
+        policyBuilder.WithOrigins("http://localhost:5000");
+        policyBuilder.AllowAnyHeader();
+        policyBuilder.AllowAnyMethod();
+        policyBuilder.AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -32,6 +43,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("defaultPolicy");
 
 app.UseHttpsRedirection();
 

@@ -14,9 +14,9 @@ namespace PolymerSamples.Repository
             _context = context;
         }
 
-        public ICollection<CodeIncludesVaultsDTO> GetAllCodesIncludingVaults()
+        public async Task<ICollection<CodeIncludesVaultsDTO>> GetAllCodesIncludingVaultsAsync()
         {
-            return _context.Codes
+            return await _context.Codes
                 .AsNoTracking()
                 .Select(c => new CodeIncludesVaultsDTO
                 {
@@ -38,40 +38,40 @@ namespace PolymerSamples.Repository
                     note = c.Note
                 })
                 .OrderBy(c => c.code_index)
-                .ToList();
+                .ToListAsync();
         }
 
-        public Codes GetCodeById(Guid id) => _context.Codes.AsNoTracking().FirstOrDefault(c => c.Id == id);
-        public Codes? GetCodeWithCurrentName(string name)
+        public async Task<Codes> GetCodeByIdAsync(Guid id)
         {
-            return _context.Codes.AsNoTracking().FirstOrDefault(c => c.CodeName == name.Trim());
+            return await _context.Codes.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id); 
         }
-        public bool CodeExists(Guid id)
+        public async Task<Codes?> GetCodeByNameAsync(string name)
         {
-            return _context.Codes.Any(c => c.Id == id);
+            return await _context.Codes.AsNoTracking().FirstOrDefaultAsync(c => c.CodeName == name.Trim());
+        }
+        public async Task<bool> CodeExistsAsync(Guid id)
+        {
+            return await _context.Codes.AnyAsync(c => c.Id == id);
         }
 
-        public bool CreateCode(Codes code)
+        public async Task<bool> CreateCodeAsync(Codes code)
         {
             _context.Add(code);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
-        {
-            return _context.SaveChanges() > 0;
-        }
+        public async Task<bool> SaveAsync() => await _context.SaveChangesAsync() > 0;
 
-        public bool UpdateCode(Codes code)
+        public async Task<bool> UpdateCodeAsync(Codes code)
         {
             _context.Update(code);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteCode(Codes code)
+        public async Task<bool> DeleteCodeAsync(Codes code)
         {
             _context.Remove(code);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using PolymerSamples.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 
@@ -11,36 +12,40 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public bool CreateUser(Users user)
+        public async Task<bool> CreateUserAsync(Users user)
         {
             _context.Users.Add(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteUser(Users user)
+        public async Task<bool> DeleteUserAsync(Users user)
         {
             _context.Users.Remove(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public ICollection<Users> GetAllUsers()
+        public async Task<ICollection<Users>> GetAllUsersAsync()
         {
-            return _context.Users.ToList();
+            return await _context.Users.ToListAsync();
+        }
+        public async Task<Users?> GetUserByNameAsync(string name)
+        {
+            return await _context.Users.Where(u => u.UserName.Trim() == name.Trim()).FirstOrDefaultAsync();
         }
 
-        public Users GetUser(Guid id) => _context.Users.Where(u => u.Id == id).FirstOrDefault();
+        public async Task<Users> GetUserByIdAsync(Guid id) => await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 
-        public bool Save() => _context.SaveChanges() > 0;
+        public async Task<bool> SaveAsync() => await _context.SaveChangesAsync() > 0;
 
-        public bool UpdateUser(Users user)
+        public async Task<bool> UpdateUserAsync(Users user)
         {
             _context.Users.Update(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool UserExists(Guid id) => _context.Users.Any(u => u.Id == id);
+        public async Task<bool> UserExistsAsync(Guid id) => await _context.Users.AnyAsync(u => u.Id == id);
 
-        public bool UserNameExists(string userName) => _context.Users.Any(u => u.UserName == userName);
+        public async Task<bool> UserNameExistsAsync(string userName) => await _context.Users.AnyAsync(u => u.UserName == userName);
         
     }
 }

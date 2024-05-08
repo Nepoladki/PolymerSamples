@@ -23,7 +23,7 @@ namespace PolymerSamples.DTO
         {
             return new Vaults()
             {
-                Id = vaultDto.Id,
+                Id = vaultDto.Id == Guid.Empty ? Guid.NewGuid() : vaultDto.Id,
                 VaultName = vaultDto.VaultName.Trim(),
                 Note = vaultDto.Note
             };

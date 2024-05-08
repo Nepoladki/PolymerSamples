@@ -18,36 +18,36 @@ namespace PolymerSamples.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodesVaults>))]
-        public IActionResult GetAllCodeVaults()
+        public async Task<IActionResult> GetAllCodeVaults()
         {
-            var codeVaults = _codeVaultRepository.GetAllCodeVaults().Select(c => c.AsDTO());
+            var codeVaults = await _codeVaultRepository.GetAllCodeVaultsAsync();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(codeVaults);
+            return Ok(codeVaults.Select(c => c.AsDTO()));
         }
 
         [HttpGet("{codeVaultId}")]
         [ProducesResponseType(200, Type = typeof(CodesVaults))]
         [ProducesResponseType(400)]
-        public IActionResult GetCodeVault(Guid codeVaultId)
+        public async Task<IActionResult> GetCodeVaultAsync(Guid codeVaultId)
         {
-            if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
+            if (!await _codeVaultRepository.CodeVaultExistsAsync(codeVaultId))
                 return NotFound();
 
-            var codeVault = _codeVaultRepository.GetCodeVaultById(codeVaultId).AsDTO();
+            var codeVault = await _codeVaultRepository.GetCodeVaultByIdAsync(codeVaultId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(codeVault);
+            return Ok(codeVault.AsDTO());
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCodeVault(CodeVaultDTO newCodeVault)
+        public async Task<IActionResult> CreateCodeVaultAsync(CodeVaultDTO newCodeVault)
         {
             if (newCodeVault is null)
                 return BadRequest(ModelState);
@@ -57,7 +57,7 @@ namespace PolymerSamples.Controllers
 
             var codeVault = DTOToModel.FromDTO(newCodeVault);
 
-            if (!_codeVaultRepository.CreateCodeVault(codeVault))
+            if (!await _codeVaultRepository.CreateCodeVaultAsync(codeVault))
             {
                 ModelState.AddModelError("", "Saving Error");
                 return StatusCode(500, ModelState);
@@ -70,17 +70,17 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCodeVault(Guid codeVaultId)
+        public async Task<IActionResult> DeleteCodeVaultAsync(Guid codeVaultId)
         {
-            if (!_codeVaultRepository.CodeVaultExists(codeVaultId))
+            if (!await _codeVaultRepository.CodeVaultExistsAsync(codeVaultId))
                 return BadRequest(ModelState);
 
-            var codeVaultToDelete = _codeVaultRepository.GetCodeVaultById(codeVaultId);
+            var codeVaultToDelete = await _codeVaultRepository.GetCodeVaultByIdAsync(codeVaultId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_codeVaultRepository.DeleteCodeVault(codeVaultToDelete))
+            if (!await _codeVaultRepository.DeleteCodeVaultAsync(codeVaultToDelete))
             {
                 ModelState.AddModelError("", $"Error occured while deleting code with ID {codeVaultId}");
                 return StatusCode(500, ModelState);

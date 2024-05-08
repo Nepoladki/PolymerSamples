@@ -1,4 +1,5 @@
-﻿using PolymerSamples.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 
@@ -11,36 +12,36 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<CodesVaults> GetAllCodeVaults()
+        public async Task<ICollection<CodesVaults>> GetAllCodeVaultsAsync()
         {
-            return _context.CodesVaults.OrderBy(cv => cv.Id).ToList();
+            return await _context.CodesVaults.OrderBy(cv => cv.Id).ToListAsync();
         }
 
-        public CodesVaults GetCodeVaultById(Guid id)
+        public async Task<CodesVaults> GetCodeVaultByIdAsync(Guid id)
         {
-            return _context.CodesVaults.Where(cv => cv.Id == id).FirstOrDefault();
+            return await _context.CodesVaults.Where(cv => cv.Id == id).FirstOrDefaultAsync();
         }
 
-        public bool CodeVaultExists(Guid id)
+        public async Task<bool> CodeVaultExistsAsync(Guid id)
         {
-            return _context.CodesVaults.Any(cv => cv.Id == id);
+            return await _context.CodesVaults.AnyAsync(cv => cv.Id == id);
         }
 
-        public bool CreateCodeVault(CodesVaults codeVault)
+        public async Task<bool> CreateCodeVaultAsync(CodesVaults codeVault)
         {
             _context.Add(codeVault);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            return _context.SaveChanges() > 0;
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public bool DeleteCodeVault(CodesVaults codeVault)
+        public async Task<bool> DeleteCodeVaultAsync(CodesVaults codeVault)
         {
             _context.Remove(codeVault);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

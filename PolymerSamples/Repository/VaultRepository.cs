@@ -2,6 +2,7 @@
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace PolymerSamples.Repository
 {
@@ -12,9 +13,9 @@ namespace PolymerSamples.Repository
         {
             _context = context;
         }
-        public ICollection<VaultIncludesCodesDTO> GetAllVaults()
+        public async Task<ICollection<VaultIncludesCodesDTO>> GetAllVaultsAsync()
         {
-            return _context.Vaults
+            return await _context.Vaults
                 .Select(v => new VaultIncludesCodesDTO
                 {
                     id = v.Id,
@@ -28,15 +29,15 @@ namespace PolymerSamples.Repository
                         }).ToList()
                 })
                 .OrderBy(v => v.vault_name)
-                .ToList();
+                .ToListAsync();
         }
-        public Vaults GetVault(Guid id)
+        public async Task<Vaults> GetVaultByIdAsync(Guid id)
         {
-            return _context.Vaults.Where(v => v.Id == id).FirstOrDefault();
+            return await _context.Vaults.Where(v => v.Id == id).FirstOrDefaultAsync();
         }
-        public VaultIncludesCodesDTO GetVaultWithCodes(Guid id)
+        public async Task<VaultIncludesCodesDTO?> GetVaultWithCodesByIdAsync(Guid id)
         {
-            return _context.Vaults.Where(v => v.Id == id)
+            return await _context.Vaults.Where(v => v.Id == id)
                 .Select(v => new VaultIncludesCodesDTO
                 {
                     id = v.Id,
@@ -47,33 +48,33 @@ namespace PolymerSamples.Repository
                         code_id = cv.CodeId,
                         code_index = cv.Code.CodeIndex.ToString()
                     }).ToList()
-                }).FirstOrDefault();
+                }).FirstOrDefaultAsync();
         }
 
-        public bool VaultExists(Guid id) => _context.Vaults.Any(v => v.Id == id);
+        public async Task<bool> VaultExistsAsync(Guid id) => _context.Vaults.Any(v => v.Id == id);
 
-        public bool CreateVault(Vaults vault)
+        public async Task<bool> CreateVaultAsync(Vaults vault)
         {
             _context.Add(vault);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save() => _context.SaveChanges() > 0;
+        public async Task<bool> SaveAsync() => await _context.SaveChangesAsync() > 0;
 
-        public bool DeleteVault(Vaults vault)
+        public async Task<bool> DeleteVaultAsync(Vaults vault)
         {
             _context.Remove(vault);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool UpdateVault(Vaults vault)
+        public async Task<bool> UpdateVaultAsync(Vaults vault)
         {
             _context.Update(vault);
-            return Save();
+            return await SaveAsync();
         }
-        public ICollection<VaultIncludesCodesDTO>? GetVaultWithCodesAndCivId(Guid vaultId)
+        public async Task<ICollection<VaultIncludesCodesDTO>?> GetVaultWithCodesAndCivIdAsync(Guid vaultId)
         {
-            return _context.Vaults
+            return await _context.Vaults
                 .Where(v => v.Id == vaultId)
                 .Select(v => new VaultIncludesCodesDTO
                 {
@@ -88,7 +89,14 @@ namespace PolymerSamples.Repository
                         }).ToList()
                 })
                 .OrderBy(v => v.vault_name)
-                .ToList();
+                .ToListAsync();
+        }
+
+        public async Task<Vaults?> GetVaultByNameAsync(string name)
+        {
+            return await _context.Vaults
+                .Where(v => v.VaultName.Trim() == name.Trim())
+                .FirstOrDefaultAsync();
         }
     }
 }

@@ -5,14 +5,15 @@ namespace PolymerSamples.Interfaces
 {
     public interface IVaultRepository
     {
-        ICollection<VaultIncludesCodesDTO> GetAllVaults();
-        VaultIncludesCodesDTO GetVaultWithCodes(Guid id);
-        ICollection<VaultIncludesCodesDTO>? GetVaultWithCodesAndCivId(Guid vaultId);
-        Vaults GetVault(Guid id);
-        bool VaultExists(Guid id);
-        bool CreateVault(Vaults vault);
-        bool DeleteVault(Vaults vault);
-        bool UpdateVault(Vaults vault);
-        bool Save();
+        Task<ICollection<VaultIncludesCodesDTO>> GetAllVaultsAsync();
+        Task<VaultIncludesCodesDTO> GetVaultWithCodesByIdAsync(Guid id);
+        Task<ICollection<VaultIncludesCodesDTO>?> GetVaultWithCodesAndCivIdAsync(Guid vaultId);
+        Task<Vaults> GetVaultByIdAsync(Guid id);
+        Task<Vaults?> GetVaultByNameAsync(string name);
+        Task<bool> VaultExistsAsync(Guid id);
+        Task<bool> CreateVaultAsync(Vaults vault);
+        Task<bool> DeleteVaultAsync(Vaults vault);
+        Task<bool> UpdateVaultAsync(Vaults vault);
+        Task<bool> SaveAsync();
     }
 }

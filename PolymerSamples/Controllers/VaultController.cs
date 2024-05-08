@@ -21,9 +21,9 @@ namespace PolymerSamples.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VaultIncludesCodesDTO>))]
-        public IActionResult GetVaults()
+        public async Task<IActionResult> GetAllVaultsAsync()
         {
-            var vaults = _vaultRepository.GetAllVaults();
+            var vaults = await _vaultRepository.GetAllVaultsAsync();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -34,12 +34,12 @@ namespace PolymerSamples.Controllers
         [HttpGet("{vaultId}")]
         [ProducesResponseType(200, Type = typeof(Vaults))]
         [ProducesResponseType(400)]
-        public IActionResult GetCodeVaultWithCodesAndVaultsByVaultId(Guid vaultId)
+        public async Task<IActionResult> GetCodeVaultWithCodesAndVaultsByVaultId(Guid vaultId)
         {
-            if (!_vaultRepository.VaultExists(vaultId))
+            if (!await _vaultRepository.VaultExistsAsync(vaultId))
                 return NotFound();
 
-            var vault = _vaultRepository.GetVaultWithCodesAndCivId(vaultId);
+            var vault = await _vaultRepository.GetVaultWithCodesAndCivIdAsync(vaultId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -50,16 +50,14 @@ namespace PolymerSamples.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(422)]
-        public IActionResult CreateVault([FromBody] VaultDTO newVault)
+        public async Task<IActionResult> CreateVaultAsync([FromBody] VaultDTO newVault)
         {
             if (newVault is null)
                 return BadRequest(ModelState);
 
-            var existingVault = _vaultRepository.GetAllVaults()
-                .Where(v => v.vault_name.Trim().ToUpper() == newVault.VaultName.TrimEnd().ToUpper())
-                .FirstOrDefault();
+            var existingVault = await _vaultRepository.GetVaultByNameAsync(newVault.VaultName);
 
-            if (existingVault != null)
+            if (existingVault is not null)
             {
                 ModelState.AddModelError("", "Vault already exists");
                 return StatusCode(422, ModelState);
@@ -70,7 +68,7 @@ namespace PolymerSamples.Controllers
 
             var vault = DTOToModel.FromDTO(newVault);
 
-            if (!_vaultRepository.CreateVault(vault))
+            if (!await _vaultRepository.CreateVaultAsync(vault))
             {
                 ModelState.AddModelError("", "Saving Error");
                 return StatusCode(500, ModelState);
@@ -83,17 +81,17 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteVault(Guid vaultId)
+        public async Task<IActionResult> DeleteVault(Guid vaultId)
         {
-            if (!_vaultRepository.VaultExists(vaultId))
+            if (!await _vaultRepository.VaultExistsAsync(vaultId))
                 return NotFound();
 
-            var vaultToDelete = _vaultRepository.GetVault(vaultId);
+            var vaultToDelete = await _vaultRepository.GetVaultByIdAsync(vaultId);
 
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_vaultRepository.DeleteVault(vaultToDelete))
+            if (!await _vaultRepository.DeleteVaultAsync(vaultToDelete))
             {
                 ModelState.AddModelError("", $"Error occured while deleting vault with ID {vaultId}");
                 return BadRequest(ModelState);
@@ -106,19 +104,19 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCode(Guid vaultId, [FromBody] JsonPatchDocument<Vaults> patchVault)
+        public async Task<IActionResult> UpdateCodeAsync(Guid vaultId, [FromBody] JsonPatchDocument<Vaults> patchVault)
         {
-            if (!_vaultRepository.VaultExists(vaultId))
+            if (!await _vaultRepository.VaultExistsAsync(vaultId))
                 return NotFound();
 
-            var vaultToUpdate = _vaultRepository.GetVault(vaultId);
+            var vaultToUpdate = await _vaultRepository.GetVaultByIdAsync(vaultId);
 
             patchVault.ApplyTo(vaultToUpdate, ModelState);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_vaultRepository.UpdateVault(vaultToUpdate))
+            if (!await _vaultRepository.UpdateVaultAsync(vaultToUpdate))
             {
                 ModelState.AddModelError("", $"Error occured while updating code with ID {vaultId}");
                 return BadRequest(ModelState);

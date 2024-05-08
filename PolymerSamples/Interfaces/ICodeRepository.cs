@@ -5,14 +5,14 @@ namespace PolymerSamples.Interfaces
 {
     public interface ICodeRepository
     {
-        ICollection<CodeIncludesVaultsDTO> GetAllCodesIncludingVaults();
-        Codes? GetCodeWithCurrentName(string name);
-        Codes GetCodeById(Guid id);
-        bool CodeExists(Guid id);
-        bool CreateCode(Codes code);
-        bool UpdateCode(Codes code);
-        bool DeleteCode(Codes code);
-        bool Save();
+        Task<ICollection<CodeIncludesVaultsDTO>> GetAllCodesIncludingVaultsAsync();
+        Task<Codes?> GetCodeByNameAsync(string name);
+        Task<Codes> GetCodeByIdAsync(Guid id);
+        Task<bool> CodeExistsAsync(Guid id);
+        Task<bool> CreateCodeAsync(Codes code);
+        Task<bool> UpdateCodeAsync(Codes code);
+        Task<bool> DeleteCodeAsync(Codes code);
+        Task<bool> SaveAsync();
 
     }
 }

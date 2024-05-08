@@ -19,9 +19,9 @@ namespace PolymerSamples.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodeIncludesVaultsDTO>))]
-        public IActionResult GetAllCodes()
+        public async Task<IActionResult> GetAllCodesAsync()
         {
-            var codes = _codesRepository.GetAllCodesIncludingVaults();
+            var codes = await _codesRepository.GetAllCodesIncludingVaultsAsync();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -32,29 +32,29 @@ namespace PolymerSamples.Controllers
         [HttpGet("{codeId}")]
         [ProducesResponseType(200, Type = typeof(Codes))]
         [ProducesResponseType(400)]
-        public IActionResult GetCode(Guid codeId) 
+        public async Task<IActionResult> GetCodeAsync(Guid codeId) 
         {
-            if (!_codesRepository.CodeExists(codeId))
+            if (!await _codesRepository.CodeExistsAsync(codeId))
                 return NotFound();
 
-            var code = _codesRepository.GetCodeById(codeId).AsDTO();
+            var code =  await _codesRepository.GetCodeByIdAsync(codeId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(code);
+            return Ok(code.AsDTO());
         }
 
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(409)]
         [ProducesResponseType(500)]
-        public IActionResult CreateCode([FromBody] CodeDTO newCode) 
+        public async Task<IActionResult> CreateCodeAsync([FromBody] CodeDTO newCode) 
         {
             if(newCode is null)
                 return BadRequest(ModelState);
 
-            var existingCode = _codesRepository.GetCodeWithCurrentName(newCode.CodeName);
+            var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.CodeName);
 
             if (existingCode is not null)
                 return StatusCode(409, $"Code with this name already exists, its id is {existingCode.Id}");
@@ -64,7 +64,7 @@ namespace PolymerSamples.Controllers
 
             var code = DTOToModel.FromDTO(newCode);
             
-            if (!_codesRepository.CreateCode(code))
+            if (!await _codesRepository.CreateCodeAsync(code))
                 return StatusCode(500, "Error occured while saving data to database");
 
             return Ok("Succesfully created and saved new code");
@@ -74,17 +74,17 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCode(Guid codeId)
+        public async Task<IActionResult> DeleteCode(Guid codeId)
         {
-            if(!_codesRepository.CodeExists(codeId))
+            if(!await _codesRepository.CodeExistsAsync(codeId))
                 return NotFound();
 
-            var codeToDelete = _codesRepository.GetCodeById(codeId);
+            var codeToDelete = await _codesRepository.GetCodeByIdAsync(codeId);
 
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_codesRepository.DeleteCode(codeToDelete))
+            if (!await _codesRepository.DeleteCodeAsync(codeToDelete))
             {
                 ModelState.AddModelError("", $"Error occured while deleting code with ID {codeId}");
                 return BadRequest(ModelState);
@@ -97,19 +97,19 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCode(Guid codeId, [FromBody] JsonPatchDocument<Codes> patchCode)
+        public async Task<IActionResult> UpdateCodeAsync(Guid codeId, [FromBody] JsonPatchDocument<Codes> patchCode)
         {
-            if (!_codesRepository.CodeExists(codeId))
+            if (!await _codesRepository.CodeExistsAsync(codeId))
                 return NotFound();
 
-            var codeToUpdate = _codesRepository.GetCodeById(codeId);
+            var codeToUpdate = await _codesRepository.GetCodeByIdAsync(codeId);
 
             patchCode.ApplyTo(codeToUpdate, ModelState);
       
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_codesRepository.UpdateCode(codeToUpdate))
+            if (!await _codesRepository.UpdateCodeAsync(codeToUpdate))
             {
                 ModelState.AddModelError("", $"Error occured while updating code with ID {codeId}");
                 return BadRequest(ModelState);

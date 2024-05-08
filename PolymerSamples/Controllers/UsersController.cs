@@ -19,28 +19,28 @@ namespace PolymerSamples.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(ICollection<Users>))]
+        [ProducesResponseType(200, Type = typeof(ICollection<UserDTO>))]
         [ProducesResponseType(400)]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsersAsync()
         {
-            var users = _repository.GetAllUsers();
+            var users = await _repository.GetAllUsersAsync();
 
             if (!ModelState.IsValid) 
                 return BadRequest(ModelState);
 
-            return Ok(users);
+            return Ok(users.Select(u => u.AsDTO()));
 
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(Users))]
         [ProducesResponseType(404)]
-        public IActionResult GetUser(Guid id)
+        public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
-            if(!_repository.UserExists(id))
+            if(!await _repository.UserExistsAsync(id))
                 return NotFound();
                 
-            var user = _repository.GetUser(id);
+            var user = await _repository.GetUserByIdAsync(id);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -52,12 +52,12 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
-        public IActionResult PostUsers([FromBody] UserWithPasswordDTO user)
+        public async Task<IActionResult> PostUsersAsync([FromBody] UserWithPasswordDTO user)
         {
             if(user is null)
                 return BadRequest(ModelState);
 
-            var existingUser = _repository.GetAllUsers().Where(u => u.UserName.Trim() == user.UserName.Trim());
+            var existingUser = await _repository.GetUserByNameAsync(user.UserName);
 
             if(existingUser is not null)
             {
@@ -79,7 +79,7 @@ namespace PolymerSamples.Controllers
 
             var newUser = user.FromDTO(hashedPassword);
 
-            if (!_repository.CreateUser(newUser))
+            if (!await _repository.CreateUserAsync(newUser))
             {
                 ModelState.AddModelError("", $"Error occured while saving new user {user.UserName}");
                 return StatusCode(500, ModelState);
@@ -92,9 +92,9 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult UpdateUser(Guid id, [FromBody] JsonPatchDocument<Users> patchUser)
+        public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] JsonPatchDocument<Users> patchUser)
         {
-            var userToUpdate = _repository.GetUser(id);
+            var userToUpdate = await _repository.GetUserByIdAsync(id);
 
             if(userToUpdate is null) 
             {
@@ -123,7 +123,7 @@ namespace PolymerSamples.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_repository.UpdateUser(userToUpdate))
+            if (!await _repository.UpdateUserAsync(userToUpdate))
             {
                 ModelState.AddModelError("", $"Error occured while saving updates for user with id {id}");
                 return StatusCode(500, ModelState);
@@ -136,17 +136,17 @@ namespace PolymerSamples.Controllers
 
         [HttpDelete("{id}")]
         [ProducesResponseType(400)]
-        public IActionResult DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
-            if(!_repository.UserExists(id))
+            if(!await _repository.UserExistsAsync(id))
                 return NotFound();
 
-            var user = _repository.GetUser(id);
+            var user = await _repository.GetUserByIdAsync(id);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_repository.DeleteUser(user))
+            if (!await _repository.DeleteUserAsync(user))
             {
                 ModelState.AddModelError("",$"Error occured while deleting user with id {id}");
                 return BadRequest(ModelState);
