@@ -13,8 +13,8 @@ using PolymerSamples.Data;
 namespace PolymerSamples.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240506112932_work db update")]
-    partial class workdbupdate
+    [Migration("20240512163525_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,10 @@ namespace PolymerSamples.Migrations
                         .HasColumnType("text")
                         .HasColumnName("code_name");
 
+                    b.Property<int?>("Layers")
+                        .HasColumnType("integer")
+                        .HasColumnName("number_of_layers");
+
                     b.Property<string>("LegacyCodeName")
                         .HasColumnType("text")
                         .HasColumnName("legacy_code_name");
@@ -55,7 +59,17 @@ namespace PolymerSamples.Migrations
                         .HasColumnType("text")
                         .HasColumnName("stock_level");
 
+                    b.Property<float?>("Thickness")
+                        .HasColumnType("real")
+                        .HasColumnName("thickness");
+
+                    b.Property<int?>("TypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_id");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("codes");
                 });
@@ -84,6 +98,25 @@ namespace PolymerSamples.Migrations
                     b.ToTable("codes_in_vaults");
                 });
 
+            modelBuilder.Entity("PolymerSamples.Models.SampleTypes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type_name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("sample_types");
+                });
+
             modelBuilder.Entity("PolymerSamples.Models.Users", b =>
                 {
                     b.Property<Guid>("Id")
@@ -91,14 +124,14 @@ namespace PolymerSamples.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Password")
+                    b.Property<string>("HashedPassword")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<List<string>>("Roles")
                         .IsRequired()
@@ -136,6 +169,15 @@ namespace PolymerSamples.Migrations
                     b.ToTable("vaults");
                 });
 
+            modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
+                {
+                    b.HasOne("PolymerSamples.Models.SampleTypes", "SampleType")
+                        .WithMany("Code")
+                        .HasForeignKey("TypeId");
+
+                    b.Navigation("SampleType");
+                });
+
             modelBuilder.Entity("PolymerSamples.Models.CodesVaults", b =>
                 {
                     b.HasOne("PolymerSamples.Models.Codes", "Code")
@@ -158,6 +200,11 @@ namespace PolymerSamples.Migrations
             modelBuilder.Entity("PolymerSamples.Models.Codes", b =>
                 {
                     b.Navigation("CodeVaults");
+                });
+
+            modelBuilder.Entity("PolymerSamples.Models.SampleTypes", b =>
+                {
+                    b.Navigation("Code");
                 });
 
             modelBuilder.Entity("PolymerSamples.Models.Vaults", b =>

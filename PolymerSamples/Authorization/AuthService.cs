@@ -12,9 +12,7 @@ namespace PolymerSamples.Services
         private readonly IUserRepository _repository;
         private readonly IJwtProvider _jwtProvider;
 
-        public AuthService(
-            IUserRepository repository,
-            IJwtProvider jwtProvider)
+        public AuthService(IUserRepository repository, IJwtProvider jwtProvider)
         {
             _repository = repository;
             _jwtProvider = jwtProvider;
@@ -42,7 +40,7 @@ namespace PolymerSamples.Services
             if (hasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
                 return "Wrong password";
 
-            var token = _jwtProvider.GenerateToken(user);
+            string token = _jwtProvider.GenerateToken(user);
 
             return token;
         }

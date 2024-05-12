@@ -15,13 +15,13 @@ namespace PolymerSamples.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly IAuthService _authService;
         private readonly IUserRepository _repository;
-        private readonly IJwtProvider _jwtProvider;
 
-        public UsersController(IUserRepository repository, IJwtProvider jwtProvider)
+        public UsersController(IUserRepository repository, IAuthService authService)
         {
             _repository = repository;
-            _jwtProvider = jwtProvider;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -51,56 +51,6 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             return Ok(user.AsDTO());
-        }
-
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(422)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> RegisterNewUserAsync([FromBody] UserWithPasswordDTO user)
-        {
-            if(user is null)
-                return BadRequest(ModelState);
-
-            var existingUser = await _repository.GetUserByNameAsync(user.UserName);
-
-            if(existingUser is not null)
-            {
-                ModelState.AddModelError("", $"User with name {user.UserName} already exists. Try another name");
-                return BadRequest(ModelState);
-            }
-
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if(user.Password.Length < 6)
-            {
-                ModelState.AddModelError("", "Password length must be 6 symbols or more");
-                return BadRequest(ModelState);
-            }
-
-            AuthService authentificator = new AuthService(_repository, _jwtProvider);
-
-            var result = await authentificator.Register(user);
-
-            return Ok(result);
-        }
-
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(422)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDto)
-        {
-            if(loginDto is null)
-                return BadRequest(ModelState);
-
-            if(loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
-                return BadRequest(ModelState);
-
-            throw new Exception();
-
-
         }
 
         [HttpPatch]

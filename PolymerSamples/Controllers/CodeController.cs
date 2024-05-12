@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
@@ -9,6 +10,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
+    [Authorize("AdminPolicy")]
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
