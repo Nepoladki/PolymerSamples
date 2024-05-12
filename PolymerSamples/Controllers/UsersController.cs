@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
+using PolymerSamples.Services;
+using System.Data;
 
 namespace PolymerSamples.Controllers
 {
@@ -12,10 +16,12 @@ namespace PolymerSamples.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _repository;
+        private readonly IJwtProvider _jwtProvider;
 
-        public UsersController(IUserRepository repository)
+        public UsersController(IUserRepository repository, IJwtProvider jwtProvider)
         {
             _repository = repository;
+            _jwtProvider = jwtProvider;
         }
 
         [HttpGet]
@@ -29,11 +35,10 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             return Ok(users.Select(u => u.AsDTO()));
-
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(Users))]
+        [ProducesResponseType(200, Type = typeof(UserDTO))]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
@@ -52,7 +57,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> PostUsersAsync([FromBody] UserWithPasswordDTO user)
+        public async Task<IActionResult> RegisterNewUserAsync([FromBody] UserWithPasswordDTO user)
         {
             if(user is null)
                 return BadRequest(ModelState);
@@ -74,18 +79,28 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
             }
 
-            var hasher = new PasswordHasher();
-            string hashedPassword = hasher.HashPassword(user.Password);
+            AuthService authentificator = new AuthService(_repository, _jwtProvider);
 
-            var newUser = user.FromDTO(hashedPassword);
+            var result = await authentificator.Register(user);
 
-            if (!await _repository.CreateUserAsync(newUser))
-            {
-                ModelState.AddModelError("", $"Error occured while saving new user {user.UserName}");
-                return StatusCode(500, ModelState);
-            }
+            return Ok(result);
+        }
 
-            return Ok(newUser.AsDTO());
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDto)
+        {
+            if(loginDto is null)
+                return BadRequest(ModelState);
+
+            if(loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
+                return BadRequest(ModelState);
+
+            throw new Exception();
+
+
         }
 
         [HttpPatch]

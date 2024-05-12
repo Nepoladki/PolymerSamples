@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using PolymerSamples.Data;
-using PolymerSamples;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Repository;
+using PolymerSamples.Authorization;
+using PolymerSamples.Services;
 using Microsoft.Extensions.DependencyInjection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,8 @@ builder.Services.AddScoped<ICodeRepository, CodeRepository>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();
 builder.Services.AddScoped<ICodeVaultRepository, CodeVaultRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -47,7 +51,7 @@ app.UseCors("defaultPolicy");
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllers();
 
