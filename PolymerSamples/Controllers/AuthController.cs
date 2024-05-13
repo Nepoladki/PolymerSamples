@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol.Core.Types;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
+using System.Web.Http.Results;
 
 namespace PolymerSamples.Controllers
 {
@@ -21,7 +22,7 @@ namespace PolymerSamples.Controllers
 
         [HttpPost("register")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(422)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> RegisterNewUserAsync([FromBody] UserWithPasswordDTO user)
         {
@@ -45,9 +46,10 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _authService.Register(user);
+            if(!await _authService.Register(user))
+                return StatusCode(500, "Registration failure");
 
-            return Ok(result);
+            return Ok("Registration completed!");
         }
 
         [HttpPost("login")]
@@ -62,11 +64,14 @@ namespace PolymerSamples.Controllers
             if(loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
                 return BadRequest(ModelState);
 
-            var token = await _authService.Login(loginDto.login, loginDto.password);
+            var result = await _authService.Login(loginDto.login, loginDto.password);
 
-            Response.Cookies.Append("jwt", token);
+            if(!result.success)
+                return BadRequest(result.error);
 
-            return Ok();
+            Response.Cookies.Append("jwt", result.token);
+
+            return Ok($"Welcome, {loginDto.login}!");
         }
     }
 }

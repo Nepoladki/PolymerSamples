@@ -2,7 +2,7 @@
 {
     public record LoginDTO
     (
-        string login,
+        string login, // он же UserName
         string password
     );
 }

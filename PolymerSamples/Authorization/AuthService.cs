@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
@@ -11,38 +12,38 @@ namespace PolymerSamples.Services
     {
         private readonly IUserRepository _repository;
         private readonly IJwtProvider _jwtProvider;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public AuthService(IUserRepository repository, IJwtProvider jwtProvider)
+        public AuthService(IUserRepository repository, 
+            IJwtProvider jwtProvider, IPasswordHasher passwordHasher)
         {
             _repository = repository;
             _jwtProvider = jwtProvider;
+            _passwordHasher = passwordHasher;
         }
-        public async Task<string> Register(UserWithPasswordDTO user)
+        public async Task<bool> Register(UserWithPasswordDTO user)
         {
-            var hasher = new PasswordHasher();
-
-            Users newUser = user.FromDTO(hasher.HashPassword(user.Password));
+            Users newUser = user.FromDTO(_passwordHasher.HashPassword(user.Password));
 
             if(!await _repository.CreateUserAsync(newUser))
-                return "Error occured while saving new user";
+                return false;
 
-            return "Registration completed";
+            return true;
         }
-        public async Task<string> Login(string userName, string password)
+        public async Task<(bool success, string? token, string? error)>
+            Login(string userName, string password)
         {
-            if (!await _repository.UserNameExistsAsync(userName))
-                return "User with this name doesn't exist";
+            if(!await _repository.UserNameExistsAsync(userName))
+                return (false, null, "User with this name doesn't exist");
 
             Users? user = await _repository.GetUserByNameAsync(userName);
-            
-            var hasher = new PasswordHasher();
 
-            if (hasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
-                return "Wrong password";
+            if(_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
+                return (false, null, "Wrong password");
 
             string token = _jwtProvider.GenerateToken(user);
 
-            return token;
+            return (true, token, null);
         }
     }
 }

@@ -5,8 +5,8 @@ namespace PolymerSamples.Interfaces
 {
     public interface IAuthService
     {
-        Task<string> Register(UserWithPasswordDTO user);
-        Task<string> Login(string userName, string password);
+        Task<bool> Register(UserWithPasswordDTO user);
+        Task<(bool success, string? token, string? error)> Login(string userName, string password);
         
     }
 }
