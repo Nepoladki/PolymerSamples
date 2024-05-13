@@ -46,7 +46,7 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(!await _authService.Register(user))
+            if (!await _authService.Register(user))
                 return StatusCode(500, "Registration failure");
 
             return Ok("Registration completed!");
@@ -58,15 +58,15 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDto)
         {
-            if(loginDto is null)
+            if (loginDto is null)
                 return BadRequest(ModelState);
 
-            if(loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
+            if (loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
                 return BadRequest(ModelState);
 
             var result = await _authService.Login(loginDto.login, loginDto.password);
 
-            if(!result.success)
+            if (!result.success)
                 return BadRequest(result.error);
 
             Response.Cookies.Append("jwt", result.token);

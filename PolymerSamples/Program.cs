@@ -10,6 +10,7 @@ using System.Text;
 using System.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNet.Identity;
+using Npgsql;
 
 
 var builder = WebApplication.CreateBuilder(args);

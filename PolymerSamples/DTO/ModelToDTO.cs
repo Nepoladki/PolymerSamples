@@ -43,7 +43,7 @@ namespace PolymerSamples.DTO
             (
                 user.Id,
                 user.UserName,
-                user.Roles,
+                user.Role,
                 user.IsActive
             );
         }

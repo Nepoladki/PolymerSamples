@@ -1,11 +1,13 @@
-﻿namespace PolymerSamples.DTO
+﻿using PolymerSamples.Authorization;
+
+namespace PolymerSamples.DTO
 {
     public record class UserWithPasswordDTO
     (
       Guid Id,
       string UserName,
       string Password,
-      List<string> Roles,
+      string Role,
       bool IsActive
     );
 }

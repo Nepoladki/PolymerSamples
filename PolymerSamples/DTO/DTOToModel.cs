@@ -1,4 +1,5 @@
-﻿using PolymerSamples.Models;
+﻿using PolymerSamples.Authorization;
+using PolymerSamples.Models;
 
 namespace PolymerSamples.DTO
 {
@@ -44,7 +45,7 @@ namespace PolymerSamples.DTO
                 Id = userDto.Id == Guid.Empty ? Guid.NewGuid() : userDto.Id,
                 UserName = userDto.UserName.Trim(),
                 HashedPassword = passwordHash,
-                Roles = userDto.Roles is null ? ["user"] : userDto.Roles,
+                Role = userDto.Role ?? "user",
                 IsActive = userDto.IsActive,
             };
         }

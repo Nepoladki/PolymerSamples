@@ -25,7 +25,7 @@ namespace PolymerSamples.Services
         {
             Users newUser = user.FromDTO(_passwordHasher.HashPassword(user.Password));
 
-            if(!await _repository.CreateUserAsync(newUser))
+            if (!await _repository.CreateUserAsync(newUser))
                 return false;
 
             return true;
@@ -33,12 +33,12 @@ namespace PolymerSamples.Services
         public async Task<(bool success, string? token, string? error)>
             Login(string userName, string password)
         {
-            if(!await _repository.UserNameExistsAsync(userName))
-                return (false, null, "User with this name doesn't exist");
-
             Users? user = await _repository.GetUserByNameAsync(userName);
 
-            if(_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
+            if (user is null)
+                return (false, null, "User with this name doesn't exist");
+
+            if (_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
                 return (false, null, "Wrong password");
 
             string token = _jwtProvider.GenerateToken(user);
