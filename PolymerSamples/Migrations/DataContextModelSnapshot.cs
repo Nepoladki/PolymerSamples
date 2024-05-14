@@ -129,9 +129,18 @@ namespace PolymerSamples.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<int>("Roles")
-                        .HasColumnType("integer")
-                        .HasColumnName("roles");
+                    b.Property<DateTime?>("RefreshExpires")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_expires");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
 
                     b.Property<string>("UserName")
                         .IsRequired()

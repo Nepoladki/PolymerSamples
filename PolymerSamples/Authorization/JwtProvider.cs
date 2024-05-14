@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Security.Claims;
+using PolymerSamples.DTO;
+using System.Security.Cryptography;
 
 namespace PolymerSamples.Authorization
 {
@@ -15,13 +17,15 @@ namespace PolymerSamples.Authorization
         {
             _options = options.Value;
         }
-        public string GenerateToken(Users user)
+        public JwtAuthDataDTO GenerateToken(Users user)
         { 
             Claim[] claims = 
             [
                 new("userId", user.Id.ToString()),
-                new("Admin", "true")
+                new("role", user.Role.ToString())
             ];
+
+            var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);
 
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), 
@@ -30,11 +34,40 @@ namespace PolymerSamples.Authorization
             var token = new JwtSecurityToken(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(_options.ExpiresHours));
+                expires: expiringTime);
 
             var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return tokenValue;
+            var authData = new JwtAuthDataDTO()
+            {
+                JwtToken = tokenValue,
+                Expiration = expiringTime,
+                RefreshToken = null
+            };
+
+            return authData;
+        }
+        public (string token, DateTime expires) GenerateRefreshToken()
+        {
+            var number = new byte[64];
+
+            using var generator = RandomNumberGenerator.Create();
+
+            generator.GetBytes(number);
+
+            return (Convert.ToBase64String(number), 
+                DateTime.UtcNow.AddHours(_options.RefreshExpiresHours));
+        }
+        public ClaimsPrincipal GetTokenPrincipal(string token)
+        {
+            var secret = _options.SecretKey;
+
+            var validation = new TokenValidationParameters
+            {
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+                ValidateLifetime = false
+            };
+            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
     }
 }

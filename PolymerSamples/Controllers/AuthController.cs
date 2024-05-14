@@ -46,7 +46,7 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _authService.Register(user))
+            if (!await _authService.RegisterAsync(user))
                 return StatusCode(500, "Registration failure");
 
             return Ok("Registration completed!");
@@ -64,14 +64,33 @@ namespace PolymerSamples.Controllers
             if (loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
                 return BadRequest(ModelState);
 
-            var result = await _authService.Login(loginDto.login, loginDto.password);
+            var result = await _authService.LoginAsync(loginDto.login, loginDto.password);
 
             if (!result.success)
                 return BadRequest(result.error);
 
-            Response.Cookies.Append("jwt", result.token);
+            Response.Cookies.Append("jwt", result.authData.JwtToken);
+            Response.Cookies.Append("jwt_refresh", result.authData.RefreshToken);
 
             return Ok($"Welcome, {loginDto.login}!");
+        }
+
+        [HttpPost("refresh")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> RefreshAsync()
+        {
+            if (!Request.Cookies.TryGetValue("jwt_refresh", out string userRefreshToken))
+                return Unauthorized("Did not found your refresh token in cookies");
+
+            if (!Request.Cookies.TryGetValue("jwt", out string userJwtToken)) //По идее запрос попадает в этот раут только если у юзера есть истекший токен, не знаю, нужна ли эта валидация на самом деле
+                return Unauthorized("Did not found your jwt token in cookies");
+
+
+
+            if (_repository.GetUserByIdAsync(userId))
+            return Ok();
         }
     }
 }

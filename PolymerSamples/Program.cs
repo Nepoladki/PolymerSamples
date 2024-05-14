@@ -12,7 +12,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNet.Identity;
 using Npgsql;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -54,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         }
                     };
                 });
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy =>
@@ -65,7 +65,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("User", "True");
     });
 });
-
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -85,7 +84,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

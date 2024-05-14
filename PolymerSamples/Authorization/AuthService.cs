@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.Repository;
+using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace PolymerSamples.Services
 {
@@ -21,7 +24,7 @@ namespace PolymerSamples.Services
             _jwtProvider = jwtProvider;
             _passwordHasher = passwordHasher;
         }
-        public async Task<bool> Register(UserWithPasswordDTO user)
+        public async Task<bool> RegisterAsync(UserWithPasswordDTO user)
         {
             Users newUser = user.FromDTO(_passwordHasher.HashPassword(user.Password));
 
@@ -30,8 +33,8 @@ namespace PolymerSamples.Services
 
             return true;
         }
-        public async Task<(bool success, string? token, string? error)>
-            Login(string userName, string password)
+        public async Task<(bool success, JwtAuthDataDTO? authData, string? error)>
+            LoginAsync(string userName, string password)
         {
             Users? user = await _repository.GetUserByNameAsync(userName);
 
@@ -41,9 +44,45 @@ namespace PolymerSamples.Services
             if (_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
                 return (false, null, "Wrong password");
 
-            string token = _jwtProvider.GenerateToken(user);
+            JwtAuthDataDTO authData = _jwtProvider.GenerateToken(user);
 
-            return (true, token, null);
+            var refreshToken = _jwtProvider.GenerateRefreshToken();
+
+            authData.RefreshToken = refreshToken.token;
+            user.RefreshToken = refreshToken.token;
+            user.RefreshExpires = refreshToken.expires;
+
+            await _repository.UpdateUserAsync(user);
+
+            return (true, authData, null);
+        }
+        public async Task<bool> RefreshAsync(string jwtToken, string refreshToken)
+        {
+            var principal = _jwtProvider.GetTokenPrincipal(jwtToken);
+
+            string? userId = principal.FindFirstValue("userId");
+            
+            if (userId.IsNullOrEmpty())
+                return false;
+
+            var user = await _repository.GetUserByIdAsync(Guid.Parse(userId));
+
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshExpires < DateTime.UtcNow)
+                return false;
+
+            string newRefreshToken;
+            DateTime newRefreshExpires;
+
+            var newJwtToken = _jwtProvider.GenerateToken(user);
+            (newRefreshToken, newRefreshExpires) = _jwtProvider.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshExpires = newRefreshExpires;
+
+            if (!await _repository.UpdateUserAsync(user))
+                return false;
+
+            return true;
         }
     }
 }
