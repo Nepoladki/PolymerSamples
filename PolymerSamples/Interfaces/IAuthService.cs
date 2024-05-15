@@ -7,6 +7,6 @@ namespace PolymerSamples.Interfaces
     {
         Task<bool> RegisterAsync(UserWithPasswordDTO user);
         Task<(bool success, JwtAuthDataDTO? authData, string? error)> LoginAsync(string userName, string password);
-        Task<bool> RefreshAsync(string jwtToken, string refreshToken);
+        Task<(bool, JwtAuthDataDTO?)> RefreshAsync(string jwtToken, string refreshToken);
     }
 }

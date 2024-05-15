@@ -1,5 +1,6 @@
 ﻿using PolymerSamples.DTO;
 using PolymerSamples.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace PolymerSamples.Authorization
@@ -8,6 +9,6 @@ namespace PolymerSamples.Authorization
     {
         JwtAuthDataDTO GenerateToken(Users user);
         (string token, DateTime expires) GenerateRefreshToken();
-        ClaimsPrincipal GetTokenPrincipal(string token);
+        bool ValidateToken(string token);
     }
 }

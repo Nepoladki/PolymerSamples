@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol.Core.Types;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
+using System;
 using System.Web.Http.Results;
 
 namespace PolymerSamples.Controllers
@@ -87,10 +89,24 @@ namespace PolymerSamples.Controllers
             if (!Request.Cookies.TryGetValue("jwt", out string userJwtToken)) //По идее запрос попадает в этот раут только если у юзера есть истекший токен, не знаю, нужна ли эта валидация на самом деле
                 return Unauthorized("Did not found your jwt token in cookies");
 
+            var refreshResult = await _authService.RefreshAsync(userJwtToken, userRefreshToken);
 
+            if (!refreshResult.Item1)
+                return Unauthorized("Your refresh token isn't valid or error occured while saving info in database");
+            
+            Response.Cookies.Append("jwt", refreshResult.Item2.JwtToken);
+            Response.Cookies.Append("jwt_refresh", refreshResult.Item2.RefreshToken);
 
-            if (_repository.GetUserByIdAsync(userId))
             return Ok();
+        }
+
+        [HttpDelete("refresh")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> RevokeRefreshTokenAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

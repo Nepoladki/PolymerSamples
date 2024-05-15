@@ -10,7 +10,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
-    [Authorize("AdminPolicy")]
+    [Authorize(Policy = "AdminPolicy")]
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;

@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
+using NuGet.Versioning;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.Repository;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -56,33 +61,37 @@ namespace PolymerSamples.Services
 
             return (true, authData, null);
         }
-        public async Task<bool> RefreshAsync(string jwtToken, string refreshToken)
+        public async Task<(bool, JwtAuthDataDTO?)> RefreshAsync(string jwtToken, string refreshToken)
         {
-            var principal = _jwtProvider.GetTokenPrincipal(jwtToken);
-
-            string? userId = principal.FindFirstValue("userId");
+            var encodedToken = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
+            
+            string userId = encodedToken.Claims.FirstOrDefault(k => k.Type == "userId").Value;
+            //string? userId = principal.FindFirstValue("userId");
             
             if (userId.IsNullOrEmpty())
-                return false;
+                return (false, null);
 
             var user = await _repository.GetUserByIdAsync(Guid.Parse(userId));
 
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshExpires < DateTime.UtcNow)
-                return false;
+            if (user is null || !user.IsActive || user.RefreshToken != refreshToken || user.RefreshExpires < DateTime.UtcNow)
+                return (false, null);
 
             string newRefreshToken;
             DateTime newRefreshExpires;
 
-            var newJwtToken = _jwtProvider.GenerateToken(user);
+            var newAuthData = _jwtProvider.GenerateToken(user);
+
             (newRefreshToken, newRefreshExpires) = _jwtProvider.GenerateRefreshToken();
+
+            newAuthData.RefreshToken = newRefreshToken;
 
             user.RefreshToken = newRefreshToken;
             user.RefreshExpires = newRefreshExpires;
 
             if (!await _repository.UpdateUserAsync(user))
-                return false;
+                return (false, null);
 
-            return true;
+            return (true, newAuthData);
         }
     }
 }

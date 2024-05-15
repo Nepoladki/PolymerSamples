@@ -21,8 +21,8 @@ namespace PolymerSamples.Authorization
         { 
             Claim[] claims = 
             [
-                new("userId", user.Id.ToString()),
-                new("role", user.Role.ToString())
+                new Claim("userId", user.Id.ToString()),
+                new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", user.Role.ToString())
             ];
 
             var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);
@@ -58,16 +58,21 @@ namespace PolymerSamples.Authorization
             return (Convert.ToBase64String(number), 
                 DateTime.UtcNow.AddHours(_options.RefreshExpiresHours));
         }
-        public ClaimsPrincipal GetTokenPrincipal(string token)
+        public bool ValidateToken(string token)
         {
-            var secret = _options.SecretKey;
+            //var secret = _options.SecretKey;
 
-            var validation = new TokenValidationParameters
-            {
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-                ValidateLifetime = false
-            };
-            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
+            //var validation = new TokenValidationParameters
+            //{
+            //    ClockSkew = new TimeSpan(0, 0, 5),
+            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            //    ValidateLifetime = true,
+            //    ValidateAudience = false,
+            //    ValidateIssuer = false,
+            //    ValidateIssuerSigningKey = true,
+            //};
+            return false;
+            //return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
     }
 }

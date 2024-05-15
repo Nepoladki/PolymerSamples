@@ -37,6 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     options.TokenValidationParameters = new()
                     {
+                        ClockSkew = new TimeSpan(0, 0, 5),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
@@ -58,11 +59,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy =>
     {
-        policy.RequireClaim("Admin", "true");
+        policy.RequireClaim("role", "admin");
     });
     options.AddPolicy("UserPolicy", policy =>
     {
-        policy.RequireClaim("User", "True");
+        policy.RequireClaim("role", "user");
     });
 });
 
