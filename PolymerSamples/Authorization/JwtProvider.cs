@@ -22,7 +22,7 @@ namespace PolymerSamples.Authorization
             Claim[] claims = 
             [
                 new Claim("userId", user.Id.ToString()),
-                new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", user.Role.ToString())
+                new Claim("role", user.Role.ToString())
             ];
 
             var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);

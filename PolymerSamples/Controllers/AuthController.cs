@@ -97,7 +97,7 @@ namespace PolymerSamples.Controllers
             Response.Cookies.Append("jwt", refreshResult.Item2.JwtToken);
             Response.Cookies.Append("jwt_refresh", refreshResult.Item2.RefreshToken);
 
-            return Ok();
+            return Ok(refreshResult.Item2.JwtToken);
         }
 
         [HttpDelete("refresh")]

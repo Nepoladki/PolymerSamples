@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
+using System.Security.Claims;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminPolicy")]
+    [Authorize]
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
@@ -19,8 +21,10 @@ namespace PolymerSamples.Controllers
             _codesRepository = codesRepository;
         }
 
+        [RequiresClaim(PolicyData.ClaimName, PolicyData.AdminClaimValue)]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodeIncludesVaultsDTO>))]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllCodesAsync()
         {
             var codes = await _codesRepository.GetAllCodesIncludingVaultsAsync();

@@ -66,7 +66,6 @@ namespace PolymerSamples.Services
             var encodedToken = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
             
             string userId = encodedToken.Claims.FirstOrDefault(k => k.Type == "userId").Value;
-            //string? userId = principal.FindFirstValue("userId");
             
             if (userId.IsNullOrEmpty())
                 return (false, null);
