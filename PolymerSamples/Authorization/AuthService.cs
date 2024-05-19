@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
@@ -38,59 +39,48 @@ namespace PolymerSamples.Services
 
             return true;
         }
-        public async Task<(bool success, JwtAuthDataDTO? authData, string? error)>
-            LoginAsync(string userName, string password)
+        public async Task<Result<JwtAuthDataDTO>> LoginAsync(string userName, string password)
         {
             Users? user = await _repository.GetUserByNameAsync(userName);
 
             if (user is null)
-                return (false, null, "User with this name doesn't exist");
+                return Result.Failure<JwtAuthDataDTO>($"User with {userName} name doesn't exist");
 
             if (_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
-                return (false, null, "Wrong password");
+                return Result.Failure<JwtAuthDataDTO>($"Wrong password");
 
             JwtAuthDataDTO authData = _jwtProvider.GenerateToken(user);
 
-            var refreshToken = _jwtProvider.GenerateRefreshToken();
-
-            authData.RefreshToken = refreshToken.token;
-            user.RefreshToken = refreshToken.token;
-            user.RefreshExpires = refreshToken.expires;
+            user.RefreshToken = authData.RefreshToken;
+            user.RefreshExpires = authData.RefreshExpires;
 
             await _repository.UpdateUserAsync(user);
 
-            return (true, authData, null);
+            return Result.Success(authData);
         }
-        public async Task<(bool, JwtAuthDataDTO?)> RefreshAsync(string jwtToken, string refreshToken)
+        public async Task<Result<JwtAuthDataDTO>> RefreshAsync(string jwtToken, string refreshToken)
         {
             var encodedToken = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
             
-            string userId = encodedToken.Claims.FirstOrDefault(k => k.Type == "userId").Value;
+            string userId = encodedToken.Claims.FirstOrDefault(k => k.Type == PolicyData.IdClaimType).Value;
             
             if (userId.IsNullOrEmpty())
-                return (false, null);
+                return Result.Failure<JwtAuthDataDTO>("User doesn't exist");
 
             var user = await _repository.GetUserByIdAsync(Guid.Parse(userId));
 
             if (user is null || !user.IsActive || user.RefreshToken != refreshToken || user.RefreshExpires < DateTime.UtcNow)
-                return (false, null);
-
-            string newRefreshToken;
-            DateTime newRefreshExpires;
+                return Result.Failure<JwtAuthDataDTO>("User is inactive or refresh token expired, try to log in manually");
 
             var newAuthData = _jwtProvider.GenerateToken(user);
 
-            (newRefreshToken, newRefreshExpires) = _jwtProvider.GenerateRefreshToken();
-
-            newAuthData.RefreshToken = newRefreshToken;
-
-            user.RefreshToken = newRefreshToken;
-            user.RefreshExpires = newRefreshExpires;
+            user.RefreshToken = newAuthData.RefreshToken;
+            user.RefreshExpires = newAuthData.RefreshExpires;
 
             if (!await _repository.UpdateUserAsync(user))
-                return (false, null);
+                return Result.Failure<JwtAuthDataDTO>("Error occured while saving new refresh token in database");
 
-            return (true, newAuthData);
+            return Result.Success(newAuthData);
         }
     }
 }

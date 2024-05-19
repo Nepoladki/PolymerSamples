@@ -8,7 +8,5 @@ namespace PolymerSamples.Authorization
     public interface IJwtProvider
     {
         JwtAuthDataDTO GenerateToken(Users user);
-        (string token, DateTime expires) GenerateRefreshToken();
-        bool ValidateToken(string token);
     }
 }

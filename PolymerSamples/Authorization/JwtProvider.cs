@@ -21,8 +21,8 @@ namespace PolymerSamples.Authorization
         { 
             Claim[] claims = 
             [
-                new Claim("userId", user.Id.ToString()),
-                new Claim("role", user.Role.ToString())
+                new Claim(PolicyData.IdClaimType, user.Id.ToString()),
+                new Claim(PolicyData.RoleClaimType, user.Role.ToString()) 
             ];
 
             var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);
@@ -38,41 +38,20 @@ namespace PolymerSamples.Authorization
 
             var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
 
+            var number = new byte[64];
+            using var generator = RandomNumberGenerator.Create();
+            generator.GetBytes(number);
+            var refreshToken = Convert.ToBase64String(number);
+
             var authData = new JwtAuthDataDTO()
             {
                 JwtToken = tokenValue,
                 Expiration = expiringTime,
-                RefreshToken = null
+                RefreshToken = refreshToken,
+                RefreshExpires = DateTime.UtcNow.AddHours(_options.RefreshExpiresHours)
             };
 
             return authData;
-        }
-        public (string token, DateTime expires) GenerateRefreshToken()
-        {
-            var number = new byte[64];
-
-            using var generator = RandomNumberGenerator.Create();
-
-            generator.GetBytes(number);
-
-            return (Convert.ToBase64String(number), 
-                DateTime.UtcNow.AddHours(_options.RefreshExpiresHours));
-        }
-        public bool ValidateToken(string token)
-        {
-            //var secret = _options.SecretKey;
-
-            //var validation = new TokenValidationParameters
-            //{
-            //    ClockSkew = new TimeSpan(0, 0, 5),
-            //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-            //    ValidateLifetime = true,
-            //    ValidateAudience = false,
-            //    ValidateIssuer = false,
-            //    ValidateIssuerSigningKey = true,
-            //};
-            return false;
-            //return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
     }
 }

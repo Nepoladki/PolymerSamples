@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using NuGet.Protocol.Core.Types;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using System;
-using System.Web.Http.Results;
 
 namespace PolymerSamples.Controllers
 {
@@ -68,11 +67,11 @@ namespace PolymerSamples.Controllers
 
             var result = await _authService.LoginAsync(loginDto.login, loginDto.password);
 
-            if (!result.success)
-                return BadRequest(result.error);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
 
-            Response.Cookies.Append("jwt", result.authData.JwtToken);
-            Response.Cookies.Append("jwt_refresh", result.authData.RefreshToken);
+            Response.Cookies.Append(AuthData.AccessTokenName, result.Value.JwtToken);
+            Response.Cookies.Append(AuthData.RefreshTokenName, result.Value.RefreshToken);
 
             return Ok($"Welcome, {loginDto.login}!");
         }
@@ -83,30 +82,33 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> RefreshAsync()
         {
-            if (!Request.Cookies.TryGetValue("jwt_refresh", out string userRefreshToken))
+            if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
 
-            if (!Request.Cookies.TryGetValue("jwt", out string userJwtToken)) //По идее запрос попадает в этот раут только если у юзера есть истекший токен, не знаю, нужна ли эта валидация на самом деле
+            if (!Request.Cookies.TryGetValue(AuthData.AccessTokenName, out string userJwtToken)) //По идее запрос попадает в этот раут только если у юзера есть истекший токен, не знаю, нужна ли эта валидация на самом деле
                 return Unauthorized("Did not found your jwt token in cookies");
 
             var refreshResult = await _authService.RefreshAsync(userJwtToken, userRefreshToken);
 
-            if (!refreshResult.Item1)
-                return Unauthorized("Your refresh token isn't valid or error occured while saving info in database");
+            if (refreshResult.IsFailure)
+                return Unauthorized(refreshResult.Error);
             
-            Response.Cookies.Append("jwt", refreshResult.Item2.JwtToken);
-            Response.Cookies.Append("jwt_refresh", refreshResult.Item2.RefreshToken);
+            Response.Cookies.Append(AuthData.AccessTokenName, refreshResult.Value.JwtToken);
+            Response.Cookies.Append(AuthData.RefreshTokenName, refreshResult.Value.RefreshToken);
 
-            return Ok(refreshResult.Item2.JwtToken);
+            return Ok(refreshResult.Value.JwtToken);
         }
 
-        [HttpDelete("refresh")]
+        [Authorize]
+        [HttpDelete("logout")]
         [ProducesResponseType(200)]
         [ProducesResponseType(401)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> RevokeRefreshTokenAsync()
+        public IActionResult Logout()
         {
-            throw new NotImplementedException();
+            Response.Cookies.Delete(AuthData.AccessTokenName);
+            Response.Cookies.Delete(AuthData.RefreshTokenName);
+
+            return Ok();
         }
     }
 }

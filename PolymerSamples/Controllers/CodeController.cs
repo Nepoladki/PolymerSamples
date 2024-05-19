@@ -12,7 +12,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = PolicyData.AdminPolicyName)]
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
@@ -21,7 +21,7 @@ namespace PolymerSamples.Controllers
             _codesRepository = codesRepository;
         }
 
-        [RequiresClaim(PolicyData.ClaimName, PolicyData.AdminClaimValue)]
+        //[RequiresClaim(PolicyData.RoleClaimType, PolicyData.AdminClaimValue)]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodeIncludesVaultsDTO>))]
         [ProducesResponseType(400)]

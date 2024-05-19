@@ -14,6 +14,7 @@ using Npgsql;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,26 +34,27 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
+builder.Services.AddSwaggerGen(options =>
+{ //Эта конфигурация на данный момент бесполезна тк я работаю с токенами чере куки
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Please enter a valid token",
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement //спросить у нейросетки что это
     {
         {
-            new OpenApiSecurityScheme 
-            { 
-                Reference = new OpenApiReference 
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme 
-                } 
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
             },
             Array.Empty<string>()
         }
@@ -78,6 +80,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         OnMessageReceived = context =>
                         {
                             context.Token = context.Request.Cookies["jwt"];
+                            
                             return Task.CompletedTask;
                         }
                     };
@@ -87,11 +90,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(PolicyData.AdminPolicyName, policy =>
     {
-        policy.RequireClaim(PolicyData.ClaimName, PolicyData.AdminClaimValue);
+        policy.RequireClaim(PolicyData.RoleClaimType, PolicyData.AdminClaimValue);
     });
     options.AddPolicy(PolicyData.UserPolicyName, policy =>
     {
-        policy.RequireClaim(PolicyData.ClaimName, PolicyData.UserClaimValue);
+        policy.RequireClaim(PolicyData.RoleClaimType, PolicyData.UserClaimValue);
     });
 });
 
@@ -105,7 +108,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("defaultPolicy", policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:5000"); //адрес надо поменять на корректный
+        policyBuilder.WithOrigins("http://localhost:7179"); //адрес надо поменять на корректный
         policyBuilder.AllowAnyHeader();
         policyBuilder.AllowAnyMethod();
         policyBuilder.AllowCredentials();
@@ -114,11 +117,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI();
 }
 app.UseCors("defaultPolicy");
 
@@ -137,3 +140,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

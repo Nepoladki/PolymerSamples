@@ -16,8 +16,6 @@ namespace PolymerSamples.Authorization
         }
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var headers = context.HttpContext.Request.Headers;
-            var claims = context.HttpContext.Request.Cookies;
             if (!context.HttpContext.User.HasClaim(_claimType, _claimValue))
             {
                 context.Result = new ForbidResult();
