@@ -102,6 +102,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection"));
     options.EnableSensitiveDataLogging(true);
+    options.UseSnakeCaseNamingConvention();
 });
 // CORS setup
 builder.Services.AddCors(options =>
