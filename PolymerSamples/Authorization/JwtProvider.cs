@@ -21,8 +21,8 @@ namespace PolymerSamples.Authorization
         { 
             Claim[] claims = 
             [
-                new Claim(PolicyData.IdClaimType, user.Id.ToString()),
-                new Claim(PolicyData.RoleClaimType, user.Role.ToString()) 
+                new Claim(AuthData.IdClaimType, user.Id.ToString()),
+                new Claim(AuthData.RoleClaimType, user.Role.ToString()) 
             ];
 
             var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);

@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PolymerSamples.Controllers
 {
     [Route("api/codesinvaults/[Controller]")]
     [ApiController]
+    [Authorize]
     public class CodeVaultController : ControllerBase
     {
         private readonly ICodeVaultRepository _codeVaultRepository;
@@ -44,6 +47,7 @@ namespace PolymerSamples.Controllers
             return Ok(codeVault.AsDTO());
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -55,7 +59,7 @@ namespace PolymerSamples.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var codeVault = DTOToModel.FromDTO(newCodeVault);
+            var codeVault = DTOToModelExtensions.FromDTO(newCodeVault);
 
             if (!await _codeVaultRepository.CreateCodeVaultAsync(codeVault))
             {
@@ -66,6 +70,7 @@ namespace PolymerSamples.Controllers
             return Ok("Succesfully created and saved new code and vault relation");
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpDelete("{codeVaultId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -76,9 +81,6 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             var codeVaultToDelete = await _codeVaultRepository.GetCodeVaultByIdAsync(codeVaultId);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             if (!await _codeVaultRepository.DeleteCodeVaultAsync(codeVaultToDelete))
             {

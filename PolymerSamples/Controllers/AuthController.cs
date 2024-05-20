@@ -81,12 +81,12 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(401)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> RefreshAsync()
-        {
-            if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string userRefreshToken))
+        {   // Checking if user have refresh token in cookies
+            if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string? userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
-
-            if (!Request.Cookies.TryGetValue(AuthData.AccessTokenName, out string userJwtToken)) //По идее запрос попадает в этот раут только если у юзера есть истекший токен, не знаю, нужна ли эта валидация на самом деле
-                return Unauthorized("Did not found your jwt token in cookies");
+            // Checking if user have expired jwt token in cookies
+            if (!Request.Cookies.TryGetValue(AuthData.AccessTokenName, out string? userJwtToken))
+                return Unauthorized("Did not found your expired jwt token in cookies");
 
             var refreshResult = await _authService.RefreshAsync(userJwtToken, userRefreshToken);
 

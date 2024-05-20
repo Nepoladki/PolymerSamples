@@ -3,7 +3,7 @@ using PolymerSamples.Models;
 
 namespace PolymerSamples.DTO
 {
-    public static class DTOToModel
+    public static class DTOToModelExtensions
     {
         public static Codes FromDTO(this CodeDTO codeDto)
         {
@@ -12,7 +12,7 @@ namespace PolymerSamples.DTO
                 Id = codeDto.Id,
                 CodeIndex = codeDto.CodeIndex,
                 CodeName = codeDto.CodeName.Trim(),
-                LegacyCodeName = codeDto.LegacyCodeName.Trim(),
+                LegacyCodeName = codeDto.LegacyCodeName?.Trim(),
                 StockLevel = codeDto.StockLevel ?? "empty",
                 Note = codeDto.Note,
                 TypeId = codeDto.TypeId,
@@ -47,6 +47,8 @@ namespace PolymerSamples.DTO
                 HashedPassword = passwordHash,
                 Role = userDto.Role ?? "user",
                 IsActive = userDto.IsActive,
+                RefreshToken = userDto.RefreshToken,
+                RefreshExpires = userDto.RefreshExpires
             };
         }
     }

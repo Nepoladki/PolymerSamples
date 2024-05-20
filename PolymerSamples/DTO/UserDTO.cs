@@ -7,6 +7,8 @@ namespace PolymerSamples.DTO
         Guid Id,
         string UserName,
         string Role,
-        bool IsActive
+        bool IsActive,
+        string? RefreshToken,
+        DateTime? RefreshExpires
     );
 }

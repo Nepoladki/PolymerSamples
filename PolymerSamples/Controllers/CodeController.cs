@@ -12,7 +12,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/codes/[controller]")]
     [ApiController]
-    [Authorize(Policy = PolicyData.AdminPolicyName)]
+    [Authorize]
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
@@ -21,7 +21,6 @@ namespace PolymerSamples.Controllers
             _codesRepository = codesRepository;
         }
 
-        //[RequiresClaim(PolicyData.RoleClaimType, PolicyData.AdminClaimValue)]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CodeIncludesVaultsDTO>))]
         [ProducesResponseType(400)]
@@ -51,6 +50,7 @@ namespace PolymerSamples.Controllers
             return Ok(code.AsDTO());
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(409)]
@@ -68,7 +68,7 @@ namespace PolymerSamples.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var code = DTOToModel.FromDTO(newCode);
+            var code = DTOToModelExtensions.FromDTO(newCode);
             
             if (!await _codesRepository.CreateCodeAsync(code))
                 return StatusCode(500, "Error occured while saving data to database");
@@ -76,6 +76,7 @@ namespace PolymerSamples.Controllers
             return Ok("Succesfully created and saved new code");
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpDelete("{codeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -99,6 +100,7 @@ namespace PolymerSamples.Controllers
             return Ok($"Succsessfully deleted code with ID {codeId}");
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpPatch("{codeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

@@ -31,10 +31,7 @@ namespace PolymerSamples.Repository
                 .OrderBy(v => v.vault_name)
                 .ToListAsync();
         }
-        public async Task<Vaults> GetVaultByIdAsync(Guid id)
-        {
-            return await _context.Vaults.Where(v => v.Id == id).FirstOrDefaultAsync();
-        }
+        public async Task<Vaults> GetVaultByIdAsync(Guid id) => await _context.Vaults.Where(v => v.Id == id).FirstOrDefaultAsync();
         public async Task<VaultIncludesCodesDTO?> GetVaultWithCodesByIdAsync(Guid id)
         {
             return await _context.Vaults.Where(v => v.Id == id)
@@ -51,7 +48,7 @@ namespace PolymerSamples.Repository
                 }).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> VaultExistsAsync(Guid id) => _context.Vaults.Any(v => v.Id == id);
+        public async Task<bool> VaultExistsAsync(Guid id) => await _context.Vaults.AnyAsync(v => v.Id == id);
 
         public async Task<bool> CreateVaultAsync(Vaults vault)
         {

@@ -45,7 +45,7 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement //спросить у нейросетки что это
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -87,14 +87,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 });
 
 builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(PolicyData.AdminPolicyName, policy =>
+{// Эта конфигурация на данный момент бесполезна тк я использую кастомный RequiresCalimAttribute вместо Политик
+    options.AddPolicy(AuthData.AdminPolicyName, policy =>
     {
-        policy.RequireClaim(PolicyData.RoleClaimType, PolicyData.AdminClaimValue);
+        policy.RequireClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue);
     });
-    options.AddPolicy(PolicyData.UserPolicyName, policy =>
+    options.AddPolicy(AuthData.ViwerPolicyName, policy =>
     {
-        policy.RequireClaim(PolicyData.RoleClaimType, PolicyData.UserClaimValue);
+        policy.RequireClaim(AuthData.RoleClaimType, AuthData.ViewerClaimValue);
     });
 });
 

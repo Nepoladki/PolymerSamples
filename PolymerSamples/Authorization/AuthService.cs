@@ -62,7 +62,7 @@ namespace PolymerSamples.Services
         {
             var encodedToken = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
             
-            string userId = encodedToken.Claims.FirstOrDefault(k => k.Type == PolicyData.IdClaimType).Value;
+            string? userId = encodedToken.Claims.FirstOrDefault(k => k.Type == AuthData.IdClaimType)?.Value;
             
             if (userId.IsNullOrEmpty())
                 return Result.Failure<JwtAuthDataDTO>("User doesn't exist");

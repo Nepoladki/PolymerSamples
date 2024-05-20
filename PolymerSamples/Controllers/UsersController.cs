@@ -15,15 +15,16 @@ namespace PolymerSamples.Controllers
     [Route("api/users/[controller]")]
     [ApiController]
     [Authorize]
+    [RequiresClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue)]
     public class UsersController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _repository;
 
-        public UsersController(IUserRepository repository, IAuthService authService)
+        public UsersController(IUserRepository repository, IPasswordHasher passwordHasher)
         {
             _repository = repository;
-            _authService = authService;
+            _passwordHasher = passwordHasher;
         }
 
         [HttpGet]
@@ -73,14 +74,13 @@ namespace PolymerSamples.Controllers
             {
                 if(op.path == "/Password" && op.OperationType == Microsoft.AspNetCore.JsonPatch.Operations.OperationType.Replace)
                 {
-                    if(op.value.ToString().Length < 6)
+                    if(op.value.ToString()?.Length < 6)
                     {
                         ModelState.AddModelError("", "Password length must be 6 symbols or more");
                         return BadRequest(ModelState);
                     }
 
-                    var hasher = new PasswordHasher();
-                    op.value = hasher.HashPassword(op.value.ToString());
+                    op.value = _passwordHasher.HashPassword(op.value.ToString());
                     break;
                 } 
             }

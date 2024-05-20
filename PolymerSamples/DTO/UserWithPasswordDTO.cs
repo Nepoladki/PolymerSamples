@@ -8,6 +8,8 @@ namespace PolymerSamples.DTO
       string UserName,
       string Password,
       string Role,
-      bool IsActive
+      bool IsActive,
+      string RefreshToken,
+      DateTime RefreshExpires
     );
 }
