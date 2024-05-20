@@ -1,8 +1,9 @@
-﻿using PolymerSamples.Models;
+﻿using PolymerSamples.Authorization;
+using PolymerSamples.Models;
 
 namespace PolymerSamples.DTO
 {
-    public static class DTOToModel
+    public static class DTOToModelExtensions
     {
         public static Codes FromDTO(this CodeDTO codeDto)
         {
@@ -11,7 +12,7 @@ namespace PolymerSamples.DTO
                 Id = codeDto.Id,
                 CodeIndex = codeDto.CodeIndex,
                 CodeName = codeDto.CodeName.Trim(),
-                LegacyCodeName = codeDto.LegacyCodeName.Trim(),
+                LegacyCodeName = codeDto.LegacyCodeName?.Trim(),
                 StockLevel = codeDto.StockLevel ?? "empty",
                 Note = codeDto.Note,
                 TypeId = codeDto.TypeId,
@@ -44,8 +45,10 @@ namespace PolymerSamples.DTO
                 Id = userDto.Id == Guid.Empty ? Guid.NewGuid() : userDto.Id,
                 UserName = userDto.UserName.Trim(),
                 HashedPassword = passwordHash,
-                Roles = userDto.Roles is null ? ["user"] : userDto.Roles,
+                Role = userDto.Role ?? "user",
                 IsActive = userDto.IsActive,
+                RefreshToken = userDto.RefreshToken,
+                RefreshExpires = userDto.RefreshExpires
             };
         }
     }

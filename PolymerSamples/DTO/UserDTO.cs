@@ -1,10 +1,14 @@
-﻿namespace PolymerSamples.DTO
+﻿using PolymerSamples.Authorization;
+
+namespace PolymerSamples.DTO
 {
     public record class UserDTO
     (
         Guid Id,
         string UserName,
-        List<string> Roles,
-        bool IsActive
+        string Role,
+        bool IsActive,
+        string? RefreshToken,
+        DateTime? RefreshExpires
     );
 }

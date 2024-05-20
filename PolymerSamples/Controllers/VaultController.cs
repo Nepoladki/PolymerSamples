@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
@@ -11,6 +13,7 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/vaults/[controller]")]
     [ApiController]
+    [Authorize]
     public class VaultController : ControllerBase 
     {
         private readonly IVaultRepository _vaultRepository;
@@ -34,6 +37,7 @@ namespace PolymerSamples.Controllers
         [HttpGet("{vaultId}")]
         [ProducesResponseType(200, Type = typeof(Vaults))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetCodeVaultWithCodesAndVaultsByVaultId(Guid vaultId)
         {
             if (!await _vaultRepository.VaultExistsAsync(vaultId))
@@ -47,9 +51,11 @@ namespace PolymerSamples.Controllers
             return Ok(vault);
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateVaultAsync([FromBody] VaultDTO newVault)
         {
             if (newVault is null)
@@ -66,7 +72,7 @@ namespace PolymerSamples.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var vault = DTOToModel.FromDTO(newVault);
+            var vault = DTOToModelExtensions.FromDTO(newVault);
 
             if (!await _vaultRepository.CreateVaultAsync(vault))
             {
@@ -77,6 +83,7 @@ namespace PolymerSamples.Controllers
             return Ok("Succesfully created and saved new vault");
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpDelete("{vaultId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -100,6 +107,7 @@ namespace PolymerSamples.Controllers
             return Ok($"Successfully deleted vault with ID {vaultId}");
         }
 
+        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
         [HttpPatch("{vaultId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

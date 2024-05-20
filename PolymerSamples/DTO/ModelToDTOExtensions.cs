@@ -2,7 +2,7 @@
 
 namespace PolymerSamples.DTO
 {
-    public static class ModelToDTO
+    public static class ModelToDTOExtensions
     {
         public static CodeDTO AsDTO(this Codes code)
         {
@@ -43,8 +43,10 @@ namespace PolymerSamples.DTO
             (
                 user.Id,
                 user.UserName,
-                user.Roles,
-                user.IsActive
+                user.Role,
+                user.IsActive,
+                user.RefreshToken,
+                user.RefreshExpires
             );
         }
     }

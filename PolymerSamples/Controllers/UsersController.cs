@@ -1,21 +1,30 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
+using PolymerSamples.Services;
+using System.Data;
 
 namespace PolymerSamples.Controllers
 {
     [Route("api/users/[controller]")]
     [ApiController]
+    [Authorize]
+    [RequiresClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue)]
     public class UsersController : ControllerBase
     {
+        private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _repository;
 
-        public UsersController(IUserRepository repository)
+        public UsersController(IUserRepository repository, IPasswordHasher passwordHasher)
         {
             _repository = repository;
+            _passwordHasher = passwordHasher;
         }
 
         [HttpGet]
@@ -29,11 +38,10 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             return Ok(users.Select(u => u.AsDTO()));
-
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(Users))]
+        [ProducesResponseType(200, Type = typeof(UserDTO))]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
         {
@@ -46,46 +54,6 @@ namespace PolymerSamples.Controllers
                 return BadRequest(ModelState);
 
             return Ok(user.AsDTO());
-        }
-
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(422)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> PostUsersAsync([FromBody] UserWithPasswordDTO user)
-        {
-            if(user is null)
-                return BadRequest(ModelState);
-
-            var existingUser = await _repository.GetUserByNameAsync(user.UserName);
-
-            if(existingUser is not null)
-            {
-                ModelState.AddModelError("", $"User with name {user.UserName} already exists. Try another name");
-                return BadRequest(ModelState);
-            }
-
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if(user.Password.Length < 6)
-            {
-                ModelState.AddModelError("", "Password length must be 6 symbols or more");
-                return BadRequest(ModelState);
-            }
-
-            var hasher = new PasswordHasher();
-            string hashedPassword = hasher.HashPassword(user.Password);
-
-            var newUser = user.FromDTO(hashedPassword);
-
-            if (!await _repository.CreateUserAsync(newUser))
-            {
-                ModelState.AddModelError("", $"Error occured while saving new user {user.UserName}");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok(newUser.AsDTO());
         }
 
         [HttpPatch]
@@ -106,14 +74,13 @@ namespace PolymerSamples.Controllers
             {
                 if(op.path == "/Password" && op.OperationType == Microsoft.AspNetCore.JsonPatch.Operations.OperationType.Replace)
                 {
-                    if(op.value.ToString().Length < 6)
+                    if(op.value.ToString()?.Length < 6)
                     {
                         ModelState.AddModelError("", "Password length must be 6 symbols or more");
                         return BadRequest(ModelState);
                     }
 
-                    var hasher = new PasswordHasher();
-                    op.value = hasher.HashPassword(op.value.ToString());
+                    op.value = _passwordHasher.HashPassword(op.value.ToString());
                     break;
                 } 
             }
