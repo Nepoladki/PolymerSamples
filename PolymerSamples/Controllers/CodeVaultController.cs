@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PolymerSamples.Controllers
 {
-    [Route("api/codesinvaults/[Controller]")]
+    [Route("api/codesinvaults/")]
     [ApiController]
     [Authorize]
     public class CodeVaultController : ControllerBase

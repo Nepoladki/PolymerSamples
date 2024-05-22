@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,11 +32,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<JwtSecurityTokenHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
-{ //Эта конфигурация на данный момент бесполезна тк я работаю с токенами чере куки
+{ 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -75,15 +77,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]))
                     };
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
-                        {
-                            context.Token = context.Request.Cookies["jwt"];
-                            
-                            return Task.CompletedTask;
-                        }
-                    };
+                    //options.Events = new JwtBearerEvents
+                    //{
+
+                    //    OnMessageReceived = context => //для работы с access токеном через куки
+                    //    {
+                    //        context.Token = context.Request.Cookies["jwt"];
+
+                    //        return Task.CompletedTask;
+                    //    }
+                    //};
                 });
 
 builder.Services.AddAuthorization(options =>
@@ -109,10 +112,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("defaultPolicy", policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:7179"); //адрес надо поменять на корректный
+        policyBuilder.WithOrigins(builder.Configuration.GetSection("CorsOptions:Origins").Get<string[]>());
         policyBuilder.AllowAnyHeader();
         policyBuilder.AllowAnyMethod();
-        policyBuilder.AllowCredentials();
     });
 });
 

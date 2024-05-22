@@ -11,7 +11,7 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers
 {
-    [Route("api/vaults/[controller]")]
+    [Route("api/vaults/")]
     [ApiController]
     [Authorize]
     public class VaultController : ControllerBase 

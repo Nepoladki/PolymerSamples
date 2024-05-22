@@ -58,11 +58,9 @@ namespace PolymerSamples.Services
 
             return Result.Success(authData);
         }
-        public async Task<Result<JwtAuthDataDTO>> RefreshAsync(string jwtToken, string refreshToken)
+        public async Task<Result<JwtAuthDataDTO>> RefreshAsync(IEnumerable<Claim> jwtClaims, string refreshToken)
         {
-            var encodedToken = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
-            
-            string? userId = encodedToken.Claims.FirstOrDefault(k => k.Type == AuthData.IdClaimType)?.Value;
+            string userId = jwtClaims.First(k => k.Type == AuthData.IdClaimType).Value;
             
             if (userId.IsNullOrEmpty())
                 return Result.Failure<JwtAuthDataDTO>("User doesn't exist");

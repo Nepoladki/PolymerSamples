@@ -1,24 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PolymerSamples.Controllers
 {
-    [Route("api/auth/[controller]")]
+    [Route("api/auth/")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly IUserRepository _repository;
         private readonly IAuthService _authService;
+        private readonly JwtSecurityTokenHandler _jwtHandler;
 
-        public AuthController(IUserRepository repository, IAuthService authService)
+        public AuthController(IUserRepository repository, IAuthService authService, JwtSecurityTokenHandler jwtHandler)
         {
             _authService = authService;
             _repository = repository;
+            _jwtHandler = jwtHandler;
         }
 
         [HttpPost("register")]
@@ -70,33 +75,38 @@ namespace PolymerSamples.Controllers
             if (result.IsFailure)
                 return BadRequest(result.Error);
 
-            Response.Cookies.Append(AuthData.AccessTokenName, result.Value.JwtToken);
             Response.Cookies.Append(AuthData.RefreshTokenName, result.Value.RefreshToken);
 
-            return Ok($"Welcome, {loginDto.login}!");
+            return Ok($"Welcome, {loginDto.login}, your access token: {result.Value.JwtToken}");
         }
 
         [HttpPost("refresh")]
         [ProducesResponseType(200)]
         [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> RefreshAsync()
         {   // Checking if user have refresh token in cookies
             if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string? userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
-            // Checking if user have expired jwt token in cookies
-            if (!Request.Cookies.TryGetValue(AuthData.AccessTokenName, out string? userJwtToken))
-                return Unauthorized("Did not found your expired jwt token in cookies");
 
-            var refreshResult = await _authService.RefreshAsync(userJwtToken, userRefreshToken);
+            string hr = HttpContext.Request.Headers.Authorization.ToString().Split()[1];
+            var token = _jwtHandler.ReadJwtToken(hr);
+
+            // Checking if user's jwt token isn't expired
+            DateTime utcDateTime = DateTimeOffset.FromUnixTimeSeconds(
+                long.Parse(token.Claims.First(c => c.Type == "exp").Value)).UtcDateTime;
+            if (utcDateTime > DateTime.UtcNow)
+                return StatusCode(400, "Unable to refresh, your access token isn't expired yet");
+
+            var refreshResult = await _authService.RefreshAsync(token.Claims, userRefreshToken);
 
             if (refreshResult.IsFailure)
-                return Unauthorized(refreshResult.Error);
+                return StatusCode(500, refreshResult.Error);
             
-            Response.Cookies.Append(AuthData.AccessTokenName, refreshResult.Value.JwtToken);
             Response.Cookies.Append(AuthData.RefreshTokenName, refreshResult.Value.RefreshToken);
 
-            return Ok(refreshResult.Value.JwtToken);
+            return Ok($"Successfully refreshed, your new access token: {refreshResult.Value.JwtToken}");
         }
 
         [Authorize]

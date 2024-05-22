@@ -12,8 +12,8 @@ using PolymerSamples.Data;
 namespace PolymerSamples.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240520191346_snakecasepackage")]
-    partial class snakecasepackage
+    [Migration("20240521070849_workinit")]
+    partial class workinit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

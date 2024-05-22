@@ -12,7 +12,7 @@ using System.Data;
 
 namespace PolymerSamples.Controllers
 {
-    [Route("api/users/[controller]")]
+    [Route("api/users/")]
     [ApiController]
     [Authorize]
     [RequiresClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue)]

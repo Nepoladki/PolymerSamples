@@ -10,7 +10,7 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers
 {
-    [Route("api/codes/[controller]")]
+    [Route("api/codes/")]
     [ApiController]
     [Authorize]
     public class CodeController : ControllerBase

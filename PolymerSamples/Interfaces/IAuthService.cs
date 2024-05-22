@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using PolymerSamples.DTO;
+using System.Security.Claims;
 
 namespace PolymerSamples.Interfaces
 {
@@ -8,6 +9,6 @@ namespace PolymerSamples.Interfaces
     {
         Task<bool> RegisterAsync(UserWithPasswordDTO user);
         Task<Result<JwtAuthDataDTO>> LoginAsync(string userName, string password);
-        Task<Result<JwtAuthDataDTO>> RefreshAsync(string jwtToken, string refreshToken);
+        Task<Result<JwtAuthDataDTO>> RefreshAsync(IEnumerable<Claim> jwtClaims, string refreshToken);
     }
 }

@@ -14,6 +14,5 @@
         public const string AdminClaimValue = "admin";
         public const string ViewerClaimValue = "viewer";
         public const string EditorClaimValue = "editor";
-
     }
 }
