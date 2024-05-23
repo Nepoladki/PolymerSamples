@@ -90,16 +90,16 @@ namespace PolymerSamples.Controllers
             if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string? userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
 
-            string hr = HttpContext.Request.Headers.Authorization.ToString().Split()[1];
-            var token = _jwtHandler.ReadJwtToken(hr);
-
+            string jwtToken = HttpContext.Request.Headers.Authorization.ToString().Split()[1];
+            var decodedToken = _jwtHandler.ReadJwtToken(jwtToken);
+          
             // Checking if user's jwt token isn't expired
             DateTime utcDateTime = DateTimeOffset.FromUnixTimeSeconds(
-                long.Parse(token.Claims.First(c => c.Type == "exp").Value)).UtcDateTime;
+                long.Parse(decodedToken.Claims.First(c => c.Type == "exp").Value)).UtcDateTime;
             if (utcDateTime > DateTime.UtcNow)
-                return StatusCode(400, "Unable to refresh, your access token isn't expired yet");
+                return Ok(jwtToken);
 
-            var refreshResult = await _authService.RefreshAsync(token.Claims, userRefreshToken);
+            var refreshResult = await _authService.RefreshAsync(decodedToken.Claims, userRefreshToken);
 
             if (refreshResult.IsFailure)
                 return StatusCode(500, refreshResult.Error);
