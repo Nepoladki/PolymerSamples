@@ -115,6 +115,7 @@ builder.Services.AddCors(options =>
         policyBuilder.WithOrigins(builder.Configuration.GetSection("CorsOptions:Origins").Get<string[]>());
         policyBuilder.AllowAnyHeader();
         policyBuilder.AllowAnyMethod();
+        policyBuilder.AllowCredentials();
     });
 });
 
