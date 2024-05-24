@@ -18,9 +18,10 @@ namespace PolymerSamples.Authorization
             _options = options.Value;
         }
         public JwtAuthDataDTO GenerateToken(Users user)
-        { 
+        {
             Claim[] claims = 
             [
+                new Claim(AuthData.UserNameClaimType, user.UserName.ToString()),
                 new Claim(AuthData.IdClaimType, user.Id.ToString()),
                 new Claim(AuthData.RoleClaimType, user.Role.ToString()) 
             ];

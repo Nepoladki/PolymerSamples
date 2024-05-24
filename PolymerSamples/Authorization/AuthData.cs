@@ -10,6 +10,7 @@
 
         public const string RoleClaimType = "clientRole";
         public const string IdClaimType = "userId";
+        public const string UserNameClaimType = "userName";
 
         public const string AdminClaimValue = "admin";
         public const string ViewerClaimValue = "viewer";
