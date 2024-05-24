@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>79fb177f-5579-462b-9984-37c96d175b98</UserSecretsId>
-    <BaseOutputPath>D:\It\Codes\PolymerSamples</BaseOutputPath>
+    <BaseOutputPath>C:\Users\user\Desktop\1\2</BaseOutputPath>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 

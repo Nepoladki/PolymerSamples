@@ -77,7 +77,7 @@ namespace PolymerSamples.Controllers
 
             Response.Cookies.Append(AuthData.RefreshTokenName, result.Value.RefreshToken);
 
-            return Ok(result.Value.JwtToken);
+            return Ok(new { accessToken = result.Value.JwtToken });
         }
 
         [HttpPost("refresh")]
