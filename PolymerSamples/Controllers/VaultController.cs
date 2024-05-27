@@ -61,7 +61,7 @@ namespace PolymerSamples.Controllers
             if (newVault is null)
                 return BadRequest(ModelState);
 
-            var existingVault = await _vaultRepository.GetVaultByNameAsync(newVault.VaultName);
+            var existingVault = await _vaultRepository.GetVaultByNameAsync(newVault.vault_name);
 
             if (existingVault is not null)
             {

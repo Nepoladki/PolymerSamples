@@ -4,11 +4,11 @@ namespace PolymerSamples.DTO
 {
     public record class UserWithPasswordDTO
     (
-      Guid Id,
-      string UserName,
-      string Password,
-      string Role,
-      bool IsActive,
+      Guid id,
+      string username,
+      string password,
+      string role,
+      bool is_active,
       string RefreshToken,
       DateTime RefreshExpires
     );

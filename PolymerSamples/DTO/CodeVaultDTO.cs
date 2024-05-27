@@ -2,8 +2,8 @@
 {
     public record class CodeVaultDTO
     (
-        Guid Id,
-        Guid CodeId,
-        Guid VaultId
+        Guid id,
+        Guid code_id,
+        Guid vault_id
     );
 }

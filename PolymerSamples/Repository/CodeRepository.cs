@@ -21,9 +21,9 @@ namespace PolymerSamples.Repository
                 .Select(c => new CodeIncludesVaultsDTO
                 {
                     id = c.Id,
-                    code_index = c.CodeIndex,
+                    short_code_name = c.CodeIndex,
                     code_name = c.CodeName,
-                    legacy_code_name = c.LegacyCodeName,
+                    supplier_code_name = c.SupplierCodeName,
                     stock_level = c.StockLevel,
                     in_vaults = c.CodeVaults
                         .Select(cv => new IncludedVaultsDTO
@@ -37,7 +37,7 @@ namespace PolymerSamples.Repository
                     type = c.SampleType.TypeName,
                     note = c.Note
                 })
-                .OrderBy(c => c.code_index)
+                .OrderBy(c => c.short_code_name)
                 .ToListAsync();
         }
 

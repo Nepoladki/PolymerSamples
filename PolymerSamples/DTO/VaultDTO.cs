@@ -2,9 +2,9 @@
 {
     public record class VaultDTO
     (
-        Guid Id,
-        string VaultName,
-        string? Note
+        Guid id,
+        string vault_name,
+        string? note
     );
     
 }

@@ -60,7 +60,7 @@ namespace PolymerSamples.Controllers
             if(newCode is null)
                 return BadRequest(ModelState);
 
-            var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.CodeName);
+            var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.code_name);
 
             if (existingCode is not null)
                 return StatusCode(409, $"Code with this name already exists, its id is {existingCode.Id}");

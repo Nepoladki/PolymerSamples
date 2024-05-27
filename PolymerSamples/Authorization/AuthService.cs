@@ -32,7 +32,7 @@ namespace PolymerSamples.Services
         }
         public async Task<bool> RegisterAsync(UserWithPasswordDTO user)
         {
-            Users newUser = user.FromDTO(_passwordHasher.HashPassword(user.Password));
+            Users newUser = user.FromDTO(_passwordHasher.HashPassword(user.password));
 
             if (!await _repository.CreateUserAsync(newUser))
                 return false;

@@ -2,14 +2,14 @@
 {
     public record class CodeDTO
         (
-            Guid Id,
-            string CodeIndex,
-            string CodeName,
-            string? LegacyCodeName,
-            string? StockLevel,
-            string? Note,
-            int? TypeId,
-            int? Layers,
-            float? Thickness
+            Guid id,
+            string short_code_name,
+            string code_name,
+            string? supplier_code_name,
+            string? stock_level,
+            string? note,
+            int? type_id,
+            int? layers,
+            float? thickness
         );
 }

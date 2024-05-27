@@ -11,7 +11,7 @@ namespace PolymerSamples.DTO
                 code.Id,
                 code.CodeIndex,
                 code.CodeName,
-                code.LegacyCodeName,
+                code.SupplierCodeName,
                 code.StockLevel,
                 code.Note,
                 code.TypeId,

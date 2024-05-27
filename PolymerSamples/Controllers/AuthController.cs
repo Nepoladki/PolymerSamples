@@ -35,18 +35,18 @@ namespace PolymerSamples.Controllers
             if (user is null)
                 return BadRequest(ModelState);
 
-            var existingUser = await _repository.GetUserByNameAsync(user.UserName);
+            var existingUser = await _repository.GetUserByNameAsync(user.username);
 
             if (existingUser is not null)
             {
-                ModelState.AddModelError("", $"User with name {user.UserName} already exists. Try another name");
+                ModelState.AddModelError("", $"User with name {user.username} already exists. Try another name");
                 return BadRequest(ModelState);
             }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (user.Password.Length < 6)
+            if (user.password.Length < 6)
             {
                 ModelState.AddModelError("", "Password length must be 6 symbols or more");
                 return BadRequest(ModelState);
@@ -97,7 +97,7 @@ namespace PolymerSamples.Controllers
             DateTime utcDateTime = DateTimeOffset.FromUnixTimeSeconds(
                 long.Parse(decodedToken.Claims.First(c => c.Type == "exp").Value)).UtcDateTime;
             if (utcDateTime > DateTime.UtcNow)
-                return Ok(jwtToken);
+                return Ok(new {accessToken = jwtToken });
 
             var refreshResult = await _authService.RefreshAsync(decodedToken.Claims, userRefreshToken);
 

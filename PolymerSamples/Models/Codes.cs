@@ -8,7 +8,7 @@ namespace PolymerSamples.Models
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required] required public string CodeIndex { get; set; }
         [Required] required public string CodeName { get; set; }
-        public string? LegacyCodeName { get; set; }
+        public string? SupplierCodeName { get; set; }
         public string? StockLevel { get; set; } = "empty";
         public string? Note { get; set; }
         public int? TypeId { get; set; }
