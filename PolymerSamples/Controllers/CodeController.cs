@@ -28,8 +28,8 @@ namespace PolymerSamples.Controllers
         {
             var codes = await _codesRepository.GetAllCodesIncludingVaultsAsync();
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             return Ok(codes);
         }
@@ -44,16 +44,16 @@ namespace PolymerSamples.Controllers
 
             var code =  await _codesRepository.GetCodeByIdAsync(codeId);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             return Ok(code.AsDTO());
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpPost]
         [ProducesResponseType(200)]
-        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateCodeAsync([FromBody] CodeDTO newCode) 
         {
@@ -63,10 +63,10 @@ namespace PolymerSamples.Controllers
             var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.code_name);
 
             if (existingCode is not null)
-                return StatusCode(409, $"Code with this name already exists, its id is {existingCode.Id}");
+                return StatusCode(422, $"Code with this name already exists, its id is {existingCode.Id}");
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             var code = DTOToModelExtensions.FromDTO(newCode);
             
@@ -76,7 +76,7 @@ namespace PolymerSamples.Controllers
             return Ok("Succesfully created and saved new code");
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpDelete("{codeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -88,41 +88,42 @@ namespace PolymerSamples.Controllers
 
             var codeToDelete = await _codesRepository.GetCodeByIdAsync(codeId);
 
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if(!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             if (!await _codesRepository.DeleteCodeAsync(codeToDelete))
-            {
-                ModelState.AddModelError("", $"Error occured while deleting code with ID {codeId}");
-                return BadRequest(ModelState);
-            }
+                return BadRequest($"Error occured while deleting code with ID {codeId}");
 
             return Ok($"Succsessfully deleted code with ID {codeId}");
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
-        [HttpPatch("{codeId}")]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
+        [HttpPut("{codeId:guid}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateCodeAsync(Guid codeId, [FromBody] JsonPatchDocument<Codes> patchCode)
+        public async Task<IActionResult> UpdateCodeAsync(Guid codeId, [FromBody] CodeDTO codeDto)
         {
+            if (codeDto is null)
+                return BadRequest("Invalid code object");
+
             if (!await _codesRepository.CodeExistsAsync(codeId))
-                return NotFound();
+                return NotFound($"Did not found code with id {codeId}");
 
             var codeToUpdate = await _codesRepository.GetCodeByIdAsync(codeId);
 
-            patchCode.ApplyTo(codeToUpdate, ModelState);
-      
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
+            codeToUpdate.CodeIndex = codeDto.short_code_name;
+            codeToUpdate.CodeName = codeDto.code_name;
+            codeToUpdate.SupplierCodeName = codeDto.supplier_code_name;
+            codeToUpdate.StockLevel = codeDto.stock_level;
+            codeToUpdate.Note = codeDto.note;
+            codeToUpdate.TypeId = codeDto.type_id;
+            codeToUpdate.Layers = codeDto.layers;
+            codeToUpdate.Thickness = codeDto.thickness;
 
             if (!await _codesRepository.UpdateCodeAsync(codeToUpdate))
-            {
-                ModelState.AddModelError("", $"Error occured while updating code with ID {codeId}");
-                return BadRequest(ModelState);
-            }
-
+                return BadRequest($"Error occured while updating code with ID {codeId}");
+            
             return Ok($"Succsessfully updated code with ID {codeId}");
         }
     }

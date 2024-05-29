@@ -99,6 +99,10 @@ builder.Services.AddAuthorization(options =>
     {
         policy.RequireClaim(AuthData.RoleClaimType, AuthData.ViewerClaimValue);
     });
+    options.AddPolicy(AuthData.EditorPolicyName, policy =>
+    {
+        policy.RequireClaim(AuthData.RoleClaimType, [AuthData.EditorClaimValue, AuthData.AdminClaimValue]);
+    });
 });
 
 builder.Services.AddDbContext<DataContext>(options =>

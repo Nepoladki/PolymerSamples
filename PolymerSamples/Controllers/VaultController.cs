@@ -51,7 +51,7 @@ namespace PolymerSamples.Controllers
             return Ok(vault);
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(422)]
@@ -65,8 +65,7 @@ namespace PolymerSamples.Controllers
 
             if (existingVault is not null)
             {
-                ModelState.AddModelError("", "Vault already exists");
-                return StatusCode(422, ModelState);
+                return StatusCode(422, "Vault already exists");
             }
 
             if (!ModelState.IsValid)
@@ -83,7 +82,7 @@ namespace PolymerSamples.Controllers
             return Ok("Succesfully created and saved new vault");
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpDelete("{vaultId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -107,30 +106,25 @@ namespace PolymerSamples.Controllers
             return Ok($"Successfully deleted vault with ID {vaultId}");
         }
 
-        [RequiresClaim(AuthData.RoleClaimType, AuthData.EditorClaimValue)]
-        [HttpPatch("{vaultId}")]
+        [Authorize(Policy = AuthData.EditorPolicyName)]
+        [HttpPut("{vaultId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateCodeAsync(Guid vaultId, [FromBody] JsonPatchDocument<Vaults> patchVault)
+        public async Task<IActionResult> UpdateCodeAsync(Guid vaultId, [FromBody] VaultDTO vaultDto)
         {
             if (!await _vaultRepository.VaultExistsAsync(vaultId))
-                return NotFound();
+                return NotFound("Vault does not exist in database");
 
             var vaultToUpdate = await _vaultRepository.GetVaultByIdAsync(vaultId);
 
-            patchVault.ApplyTo(vaultToUpdate, ModelState);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            vaultToUpdate.VaultName = vaultDto.vault_name;
+            vaultToUpdate.Note = vaultDto.note;
 
             if (!await _vaultRepository.UpdateVaultAsync(vaultToUpdate))
-            {
-                ModelState.AddModelError("", $"Error occured while updating code with ID {vaultId}");
-                return BadRequest(ModelState);
-            }
+                return BadRequest($"Error occured while updating vault with ID {vaultId}");
 
-            return Ok($"Succsessfully updated code with ID {vaultId}");
+            return Ok($"Succsessfully updated vault with ID {vaultId}");
         }
     }
 }

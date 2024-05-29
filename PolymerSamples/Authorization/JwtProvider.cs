@@ -27,6 +27,7 @@ namespace PolymerSamples.Authorization
             ];
 
             var expiringTime = DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes);
+            //var expiringTime = DateTime.UtcNow.AddSeconds(_options.ExpiresMinutes);
 
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), 

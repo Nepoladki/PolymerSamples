@@ -43,5 +43,11 @@ namespace PolymerSamples.Repository
             _context.Remove(codeVault);
             return await SaveAsync();
         }
+
+        public async Task<bool> UpdateCodeVaultAsync(CodesVaults codesVaults)
+        {
+            _context.Update(codesVaults);
+            return await SaveAsync();
+        }
     }
 }

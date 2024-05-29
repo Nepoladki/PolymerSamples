@@ -8,6 +8,7 @@ namespace PolymerSamples.Interfaces
         Task<Users> GetUserByIdAsync(Guid id);
         Task<Users?> GetUserByNameAsync(string name);
         Task<bool> UserNameExistsAsync(string userName);
+        Task<Users?> GetUserByRefreshTokenAsync(string token);
         Task<bool> UserExistsAsync(Guid id);
         Task<bool> CreateUserAsync(Users user);
         Task<bool> UpdateUserAsync(Users user);

@@ -7,6 +7,7 @@
 
         public const string ViwerPolicyName = "ViwerPolicy";
         public const string AdminPolicyName = "AdminPolicy";
+        public const string EditorPolicyName = "EditorPolicy";
 
         public const string RoleClaimType = "clientRole";
         public const string IdClaimType = "userId";

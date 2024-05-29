@@ -26,38 +26,6 @@ namespace PolymerSamples.Controllers
             _jwtHandler = jwtHandler;
         }
 
-        [HttpPost("register")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> RegisterNewUserAsync([FromBody] UserWithPasswordDTO user)
-        {
-            if (user is null)
-                return BadRequest(ModelState);
-
-            var existingUser = await _repository.GetUserByNameAsync(user.username);
-
-            if (existingUser is not null)
-            {
-                ModelState.AddModelError("", $"User with name {user.username} already exists. Try another name");
-                return BadRequest(ModelState);
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (user.password.Length < 6)
-            {
-                ModelState.AddModelError("", "Password length must be 6 symbols or more");
-                return BadRequest(ModelState);
-            }
-
-            if (!await _authService.RegisterAsync(user))
-                return StatusCode(500, "Registration failure");
-
-            return Ok("Registration completed!");
-        }
-
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(422)]
@@ -86,27 +54,33 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> RefreshAsync()
-        {   // Checking if user have refresh token in cookies
+        {
+            //DEBUG ONLY
+            Console.WriteLine("v--------------Request reached refresh endpoint-------------v");
+            Console.WriteLine("Headers:");
+            foreach (var item in HttpContext.Request.Headers)
+            {
+                Console.WriteLine($"Header {item.Key} contains {item.Value}");
+            }
+            Console.WriteLine("^--------------End of debug section------------^");
+            
+            // Checking if user have refresh token in cookies
             if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string? userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
 
-            string jwtToken = HttpContext.Request.Headers.Authorization.ToString().Split()[1];
-            var decodedToken = _jwtHandler.ReadJwtToken(jwtToken);
-          
-            // Checking if user's jwt token isn't expired
-            DateTime utcDateTime = DateTimeOffset.FromUnixTimeSeconds(
-                long.Parse(decodedToken.Claims.First(c => c.Type == "exp").Value)).UtcDateTime;
-            if (utcDateTime > DateTime.UtcNow)
-                return Ok(new {accessToken = jwtToken });
+            var user = await _repository.GetUserByRefreshTokenAsync(userRefreshToken);
 
-            var refreshResult = await _authService.RefreshAsync(decodedToken.Claims, userRefreshToken);
+            if (user is null)
+                return StatusCode(401, "Invalid refresh token");
+
+            var refreshResult = await _authService.RefreshAsync(user, userRefreshToken);
 
             if (refreshResult.IsFailure)
                 return StatusCode(500, refreshResult.Error);
-            
+
             Response.Cookies.Append(AuthData.RefreshTokenName, refreshResult.Value.RefreshToken);
 
-            return Ok(new {accessToken = refreshResult.Value.JwtToken});
+            return Ok(new { accessToken = refreshResult.Value.JwtToken });
         }
 
         [Authorize]

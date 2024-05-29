@@ -39,5 +39,10 @@ namespace PolymerSamples.Repository
         }
         public async Task<bool> UserExistsAsync(Guid id) => await _context.Users.AnyAsync(u => u.Id == id);
         public async Task<bool> UserNameExistsAsync(string userName) => await _context.Users.AnyAsync(u => u.UserName == userName);
+
+        public async Task<Users?> GetUserByRefreshTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == token);
+        }
     }
 }

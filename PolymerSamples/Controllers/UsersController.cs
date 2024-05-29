@@ -14,16 +14,18 @@ namespace PolymerSamples.Controllers
 {
     [Route("api/users/")]
     [ApiController]
-    [Authorize]
-    [RequiresClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue)]
+    [Authorize(Policy = AuthData.AdminPolicyName)]
+    
     public class UsersController : ControllerBase
     {
-        private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _repository;
+        private readonly IAuthService _authService;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UsersController(IUserRepository repository, IPasswordHasher passwordHasher)
+        public UsersController(IUserRepository repository, IAuthService authService, IPasswordHasher passwordHasher)
         {
             _repository = repository;
+            _authService = authService;
             _passwordHasher = passwordHasher;
         }
 
@@ -56,68 +58,65 @@ namespace PolymerSamples.Controllers
             return Ok(user.AsDTO());
         }
 
-        [HttpPatch]
+        [HttpPut("{id}")]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] JsonPatchDocument<Users> patchUser)
+        public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UserWithPasswordDTO userDto)
         {
-            var userToUpdate = await _repository.GetUserByIdAsync(id);
+            if (userDto is null)
+                return BadRequest("Invalid user object");
 
-            if(userToUpdate is null) 
-            {
-                ModelState.AddModelError("", $"User with this id {id} doesn't exist");
-                return NotFound(ModelState);
-            }
+            var user = await _repository.GetUserByIdAsync(id);
 
-            foreach(var op in patchUser.Operations)
-            {
-                if(op.path == "/Password" && op.OperationType == Microsoft.AspNetCore.JsonPatch.Operations.OperationType.Replace)
-                {
-                    if(op.value.ToString()?.Length < 6)
-                    {
-                        ModelState.AddModelError("", "Password length must be 6 symbols or more");
-                        return BadRequest(ModelState);
-                    }
+            
 
-                    op.value = _passwordHasher.HashPassword(op.value.ToString());
-                    break;
-                } 
-            }
+            //var user = userDto.FromDTO(_passwordHasher.HashPassword())
 
-            patchUser.ApplyTo(userToUpdate, ModelState);
+            return Ok("Succsessfully updated");
+        }
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> RegisterNewUserAsync([FromBody] UserWithPasswordDTO user)
+        {
+            if (user is null)
+                return BadRequest("Invalid user object");
 
-            if (!await _repository.UpdateUserAsync(userToUpdate))
-            {
-                ModelState.AddModelError("", $"Error occured while saving updates for user with id {id}");
-                return StatusCode(500, ModelState);
-            }
+            var existingUser = await _repository.GetUserByNameAsync(user.username);
 
-            return Ok($"Sucsessfully updated user with id {id}");
-                
-                
+            if (existingUser is not null)
+                return BadRequest($"User with name {user.username} already exists. Try another name");
+
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
+
+            if (user.password.Length < 6)
+                return BadRequest("Password length must be 6 symbols or more");
+
+            if (!await _authService.RegisterAsync(user))
+                return StatusCode(500, "Registration failure");
+
+            return Ok("Registration completed!");
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
             if(!await _repository.UserExistsAsync(id))
-                return NotFound();
+                return NotFound("User does not exist");
 
             var user = await _repository.GetUserByIdAsync(id);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             if (!await _repository.DeleteUserAsync(user))
-            {
-                ModelState.AddModelError("",$"Error occured while deleting user with id {id}");
-                return BadRequest(ModelState);
-            }
+                return BadRequest($"Error occured while deleting user with id {id}");
                 
             return Ok($"Succsesfully deleted user with id {id}");
         }

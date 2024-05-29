@@ -10,5 +10,6 @@ namespace PolymerSamples.Interfaces
         Task<bool> CreateCodeVaultAsync(CodesVaults codeVault);
         Task<bool> DeleteCodeVaultAsync(CodesVaults codeVault);
         Task<bool> SaveAsync();
+        Task<bool> UpdateCodeVaultAsync(CodesVaults codesVaults);
     }
 }

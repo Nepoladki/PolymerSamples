@@ -58,15 +58,8 @@ namespace PolymerSamples.Services
 
             return Result.Success(authData);
         }
-        public async Task<Result<JwtAuthDataDTO>> RefreshAsync(IEnumerable<Claim> jwtClaims, string refreshToken)
+        public async Task<Result<JwtAuthDataDTO>> RefreshAsync(Users user, string refreshToken)
         {
-            string userId = jwtClaims.First(k => k.Type == AuthData.IdClaimType).Value;
-            
-            if (userId.IsNullOrEmpty())
-                return Result.Failure<JwtAuthDataDTO>("User doesn't exist");
-
-            var user = await _repository.GetUserByIdAsync(Guid.Parse(userId));
-
             if (user is null || !user.IsActive || user.RefreshToken != refreshToken || user.RefreshExpires < DateTime.UtcNow)
                 return Result.Failure<JwtAuthDataDTO>("User is inactive or refresh token expired, try to log in manually");
 
