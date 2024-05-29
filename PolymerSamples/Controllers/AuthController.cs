@@ -33,10 +33,10 @@ namespace PolymerSamples.Controllers
         public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDto)
         {
             if (loginDto is null)
-                return BadRequest(ModelState);
+                return BadRequest("Invalid login object");
 
             if (loginDto.login.IsNullOrEmpty() || loginDto.password.IsNullOrEmpty())
-                return BadRequest(ModelState);
+                return BadRequest("Login or password is null or empty");
 
             var result = await _authService.LoginAsync(loginDto.login, loginDto.password);
 

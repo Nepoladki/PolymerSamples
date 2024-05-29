@@ -10,7 +10,7 @@ namespace PolymerSamples.DTO
             return new Codes()
             {
                 Id = codeDto.id,
-                CodeIndex = codeDto.short_code_name,
+                ShortCodeName = codeDto.short_code_name,
                 CodeName = codeDto.code_name.Trim(),
                 SupplierCodeName = codeDto.supplier_code_name?.Trim(),
                 StockLevel = codeDto.stock_level ?? "empty",
@@ -47,8 +47,8 @@ namespace PolymerSamples.DTO
                 HashedPassword = passwordHash,
                 Role = userDto.role ?? "user",
                 IsActive = userDto.is_active,
-                RefreshToken = userDto.RefreshToken,
-                RefreshExpires = userDto.RefreshExpires
+                RefreshToken = userDto.refresh_token,
+                RefreshExpires = userDto.refresh_expires
             };
         }
     }

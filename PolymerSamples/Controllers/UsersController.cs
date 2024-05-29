@@ -69,9 +69,17 @@ namespace PolymerSamples.Controllers
 
             var user = await _repository.GetUserByIdAsync(id);
 
-            
+            if (userDto.password is not null)
+                user.HashedPassword = _passwordHasher.HashPassword(userDto.password);
 
-            //var user = userDto.FromDTO(_passwordHasher.HashPassword())
+            user.UserName = userDto.username;
+            user.RefreshExpires = userDto.refresh_expires;
+            user.RefreshToken = userDto.refresh_token;
+            user.Role = userDto.role;
+            user.IsActive = userDto.is_active;
+
+            if (!await _repository.UpdateUserAsync(user))
+                return StatusCode(500, $"Error occured while saving updated user with id {id}");
 
             return Ok("Succsessfully updated");
         }
@@ -111,9 +119,6 @@ namespace PolymerSamples.Controllers
                 return NotFound("User does not exist");
 
             var user = await _repository.GetUserByIdAsync(id);
-
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
 
             if (!await _repository.DeleteUserAsync(user))
                 return BadRequest($"Error occured while deleting user with id {id}");

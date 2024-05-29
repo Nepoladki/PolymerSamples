@@ -9,7 +9,7 @@ namespace PolymerSamples.DTO
             return new CodeDTO
             (
                 code.Id,
-                code.CodeIndex,
+                code.ShortCodeName,
                 code.CodeName,
                 code.SupplierCodeName,
                 code.StockLevel,

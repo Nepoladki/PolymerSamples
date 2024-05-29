@@ -44,7 +44,10 @@ namespace PolymerSamples.Services
             Users? user = await _repository.GetUserByNameAsync(userName);
 
             if (user is null)
-                return Result.Failure<JwtAuthDataDTO>($"User with {userName} name doesn't exist");
+                return Result.Failure<JwtAuthDataDTO>($"User with name {userName} name doesn't exist");
+
+            if (!user.IsActive)
+                return Result.Failure<JwtAuthDataDTO>($"User with name {userName} is marked as inactive");
 
             if (_passwordHasher.VerifyHashedPassword(user.HashedPassword, password) == 0)
                 return Result.Failure<JwtAuthDataDTO>($"Wrong password");

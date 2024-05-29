@@ -21,7 +21,7 @@ namespace PolymerSamples.Repository
                 .Select(c => new CodeIncludesVaultsDTO
                 {
                     id = c.Id,
-                    short_code_name = c.CodeIndex,
+                    short_code_name = c.ShortCodeName,
                     code_name = c.CodeName,
                     supplier_code_name = c.SupplierCodeName,
                     stock_level = c.StockLevel,

@@ -9,7 +9,7 @@ namespace PolymerSamples.DTO
       string password,
       string role,
       bool is_active,
-      string RefreshToken,
-      DateTime RefreshExpires
+      string? refresh_token,
+      DateTime? refresh_expires
     );
 }

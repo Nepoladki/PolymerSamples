@@ -28,9 +28,6 @@ namespace PolymerSamples.Controllers
         {
             var vaults = await _vaultRepository.GetAllVaultsAsync();
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             return Ok(vaults);
         }
 
@@ -41,12 +38,9 @@ namespace PolymerSamples.Controllers
         public async Task<IActionResult> GetCodeVaultWithCodesAndVaultsByVaultId(Guid vaultId)
         {
             if (!await _vaultRepository.VaultExistsAsync(vaultId))
-                return NotFound();
+                return NotFound($"Vault with id {vaultId} does not exist");
 
             var vault = await _vaultRepository.GetVaultWithCodesAndCivIdAsync(vaultId);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             return Ok(vault);
         }
@@ -54,30 +48,23 @@ namespace PolymerSamples.Controllers
         [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpPost]
         [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateVaultAsync([FromBody] VaultDTO newVault)
         {
             if (newVault is null)
-                return BadRequest(ModelState);
+                return BadRequest("Vault object does not exist");
 
             var existingVault = await _vaultRepository.GetVaultByNameAsync(newVault.vault_name);
 
             if (existingVault is not null)
-            {
                 return StatusCode(422, "Vault already exists");
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             var vault = DTOToModelExtensions.FromDTO(newVault);
 
             if (!await _vaultRepository.CreateVaultAsync(vault))
-            {
-                ModelState.AddModelError("", "Saving Error");
-                return StatusCode(500, ModelState);
-            }
+                return StatusCode(500, "Error occured while saving new vault to database");
 
             return Ok("Succesfully created and saved new vault");
         }
@@ -94,14 +81,8 @@ namespace PolymerSamples.Controllers
 
             var vaultToDelete = await _vaultRepository.GetVaultByIdAsync(vaultId);
 
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (!await _vaultRepository.DeleteVaultAsync(vaultToDelete))
-            {
-                ModelState.AddModelError("", $"Error occured while deleting vault with ID {vaultId}");
-                return BadRequest(ModelState);
-            }
+                return BadRequest($"Error occured while deleting vault with ID {vaultId}");
 
             return Ok($"Successfully deleted vault with ID {vaultId}");
         }

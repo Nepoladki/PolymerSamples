@@ -28,9 +28,6 @@ namespace PolymerSamples.Controllers
         {
             var codes = await _codesRepository.GetAllCodesIncludingVaultsAsync();
 
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
-
             return Ok(codes);
         }
 
@@ -44,9 +41,6 @@ namespace PolymerSamples.Controllers
 
             var code =  await _codesRepository.GetCodeByIdAsync(codeId);
 
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
-
             return Ok(code.AsDTO());
         }
 
@@ -58,15 +52,12 @@ namespace PolymerSamples.Controllers
         public async Task<IActionResult> CreateCodeAsync([FromBody] CodeDTO newCode) 
         {
             if(newCode is null)
-                return BadRequest(ModelState);
+                return BadRequest("Invalid code object");
 
             var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.code_name);
 
             if (existingCode is not null)
                 return StatusCode(422, $"Code with this name already exists, its id is {existingCode.Id}");
-
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
 
             var code = DTOToModelExtensions.FromDTO(newCode);
             
@@ -87,9 +78,6 @@ namespace PolymerSamples.Controllers
                 return NotFound();
 
             var codeToDelete = await _codesRepository.GetCodeByIdAsync(codeId);
-
-            //if(!ModelState.IsValid)
-            //    return BadRequest(ModelState);
 
             if (!await _codesRepository.DeleteCodeAsync(codeToDelete))
                 return BadRequest($"Error occured while deleting code with ID {codeId}");
@@ -112,7 +100,7 @@ namespace PolymerSamples.Controllers
 
             var codeToUpdate = await _codesRepository.GetCodeByIdAsync(codeId);
 
-            codeToUpdate.CodeIndex = codeDto.short_code_name;
+            codeToUpdate.ShortCodeName = codeDto.short_code_name;
             codeToUpdate.CodeName = codeDto.code_name;
             codeToUpdate.SupplierCodeName = codeDto.supplier_code_name;
             codeToUpdate.StockLevel = codeDto.stock_level;
