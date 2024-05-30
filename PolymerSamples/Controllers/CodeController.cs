@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
-using System.Security.Claims;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace PolymerSamples.Controllers

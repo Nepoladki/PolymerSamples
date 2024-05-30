@@ -17,13 +17,11 @@ namespace PolymerSamples.Controllers
     {
         private readonly IUserRepository _repository;
         private readonly IAuthService _authService;
-        private readonly JwtSecurityTokenHandler _jwtHandler;
 
-        public AuthController(IUserRepository repository, IAuthService authService, JwtSecurityTokenHandler jwtHandler)
+        public AuthController(IUserRepository repository, IAuthService authService)
         {
             _authService = authService;
             _repository = repository;
-            _jwtHandler = jwtHandler;
         }
 
         [HttpPost("login")]
@@ -86,13 +84,22 @@ namespace PolymerSamples.Controllers
         [Authorize]
         [HttpDelete("logout")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
-        public IActionResult Logout()
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> LogoutAsync()
         {
             Response.Cookies.Delete(AuthData.AccessTokenName);
             Response.Cookies.Delete(AuthData.RefreshTokenName);
 
-            return Ok();
+            Guid userId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == AuthData.IdClaimType).Value);
+            var user = await _repository.GetUserByIdAsync(userId);
+
+            user.RefreshToken = null;
+            user.RefreshExpires = DateTime.UtcNow;
+
+            if (!await _repository.UpdateUserAsync(user))
+                return StatusCode(500, "Error ocuured while logging out");
+
+            return Ok("Succsessfully logged out");
         }
     }
 }
