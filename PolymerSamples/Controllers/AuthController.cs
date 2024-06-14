@@ -69,7 +69,7 @@ namespace PolymerSamples.Controllers
             var user = await _repository.GetUserByRefreshTokenAsync(userRefreshToken);
 
             if (user is null)
-                return StatusCode(401, "Invalid refresh token");
+                return Unauthorized("Invalid refresh token");
 
             var refreshResult = await _authService.RefreshAsync(user, userRefreshToken);
 
