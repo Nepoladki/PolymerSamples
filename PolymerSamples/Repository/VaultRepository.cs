@@ -24,8 +24,10 @@ namespace PolymerSamples.Repository
                     includes = v.CodeVaults
                         .Select(cv => new IncludedCodesDTO
                         {
+                            code_in_vault_id = cv.Id,
                             code_id = cv.CodeId,
-                            code_index = cv.Code.ShortCodeName.ToString()
+                            code_name = cv.Code.CodeName,
+                            short_code_name = cv.Code.ShortCodeName.ToString()
                         }).ToList()
                 })
                 .OrderBy(v => v.vault_name)
@@ -42,8 +44,10 @@ namespace PolymerSamples.Repository
                     note = v.Note,
                     includes = v.CodeVaults.Select(cv => new IncludedCodesDTO
                     {
+                        code_in_vault_id = cv.Id,
                         code_id = cv.CodeId,
-                        code_index = cv.Code.ShortCodeName.ToString()
+                        code_name = cv.Code.CodeName,
+                        short_code_name = cv.Code.ShortCodeName.ToString()
                     }).ToList()
                 }).FirstOrDefaultAsync();
         }
@@ -81,8 +85,10 @@ namespace PolymerSamples.Repository
                     includes = v.CodeVaults
                         .Select(cv => new IncludedCodesDTO
                         {
+                            code_in_vault_id = cv.Id,
                             code_id = cv.CodeId,
-                            code_index = cv.Code.ShortCodeName.ToString()
+                            code_name = cv.Code.CodeName,
+                            short_code_name = cv.Code.ShortCodeName.ToString()
                         }).ToList()
                 })
                 .OrderBy(v => v.vault_name)

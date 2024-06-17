@@ -38,7 +38,7 @@ namespace PolymerSamples.Controllers
             if (!await _vaultRepository.VaultExistsAsync(vaultId))
                 return NotFound($"Vault with id {vaultId} does not exist");
 
-            var vault = await _vaultRepository.GetVaultWithCodesAndCivIdAsync(vaultId);
+            var vault = await _vaultRepository.GetVaultWithCodesByIdAsync(vaultId);
 
             return Ok(vault);
         }

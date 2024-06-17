@@ -14,10 +14,12 @@ using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Listen(IPAddress.Parse("192.168.1.54"), 5000);
-});
+
+//Поднять сервер на указанном IP
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.Listen(IPAddress.Parse("192.168.1.54"), 5000);
+//});
 
 // Add services to the container.
 
