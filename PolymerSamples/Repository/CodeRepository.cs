@@ -47,7 +47,7 @@ namespace PolymerSamples.Repository
         }
         public async Task<Codes?> GetCodeByNameAsync(string name)
         {
-            return await _context.Codes.AsNoTracking().FirstOrDefaultAsync(c => c.CodeName == name.Trim());
+            return await _context.Codes.FirstOrDefaultAsync(c => c.CodeName == name.Trim());
         }
         public async Task<bool> CodeExistsAsync(Guid id)
         {

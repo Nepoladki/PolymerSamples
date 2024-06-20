@@ -52,16 +52,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> RefreshAsync()
-        {
-            //DEBUG ONLY
-            Console.WriteLine("v--------------Request reached refresh endpoint-------------v");
-            Console.WriteLine("Headers:");
-            foreach (var item in HttpContext.Request.Headers)
-            {
-                Console.WriteLine($"Header {item.Key} contains {item.Value}");
-            }
-            Console.WriteLine("^--------------End of debug section------------^");
-            
+        {            
             // Checking if user have refresh token in cookies
             if (!Request.Cookies.TryGetValue(AuthData.RefreshTokenName, out string? userRefreshToken))
                 return Unauthorized("Did not found your refresh token in cookies");
@@ -98,6 +89,8 @@ namespace PolymerSamples.Controllers
 
             if (!await _repository.UpdateUserAsync(user))
                 return StatusCode(500, "Error ocuured while logging out");
+
+            throw new Exception("fuck off");
 
             return Ok("Succsessfully logged out");
         }

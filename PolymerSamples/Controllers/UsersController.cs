@@ -68,19 +68,17 @@ namespace PolymerSamples.Controllers
 
             var user = await _repository.GetUserByIdAsync(id);
 
-            if (userDto.password is not null)
+            if (!userDto.password.IsNullOrEmpty() && userDto.password.Length > 5)
                 user.HashedPassword = _passwordHasher.HashPassword(userDto.password);
 
             user.UserName = userDto.username;
-            user.RefreshExpires = userDto.refresh_expires;
-            user.RefreshToken = userDto.refresh_token;
             user.Role = userDto.role;
             user.IsActive = userDto.is_active;
 
             if (!await _repository.UpdateUserAsync(user))
                 return StatusCode(500, $"Error occured while saving updated user with id {id}");
 
-            return Ok("Succsessfully updated");
+            return Ok("Successfully updated");
         }
 
         [HttpPost]
@@ -96,9 +94,6 @@ namespace PolymerSamples.Controllers
 
             if (existingUser is not null)
                 return BadRequest($"User with name {user.username} already exists. Try another name");
-
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
 
             if (user.password.Length < 6)
                 return BadRequest("Password length must be 6 symbols or more");

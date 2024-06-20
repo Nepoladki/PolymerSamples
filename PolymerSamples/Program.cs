@@ -10,16 +10,11 @@ using System.Text;
 using Microsoft.AspNet.Identity;
 using Npgsql;
 using Microsoft.OpenApi.Models;
-using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-//Поднять сервер на указанном IP
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    options.Listen(IPAddress.Parse("192.168.1.54"), 5000);
-//});
+
 
 // Add services to the container.
 
@@ -80,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 });
 
 builder.Services.AddAuthorization(options =>
-{// Эта конфигурация на данный момент бесполезна тк я использую кастомный RequiresCalimAttribute вместо Политик
+{
     options.AddPolicy(AuthData.AdminPolicyName, policy =>
     {
         policy.RequireClaim(AuthData.RoleClaimType, AuthData.AdminClaimValue);
@@ -122,6 +117,8 @@ if (app.Environment.IsDevelopment())
 app.UseSwaggerUI();
 }
 app.UseCors("defaultPolicy");
+
+app.UseExceptionHandler("/error");
 
 app.UseHttpsRedirection();
 
