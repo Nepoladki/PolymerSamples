@@ -90,8 +90,6 @@ namespace PolymerSamples.Controllers
             if (!await _repository.UpdateUserAsync(user))
                 return StatusCode(500, "Error ocuured while logging out");
 
-            throw new Exception("fuck off");
-
             return Ok("Succsessfully logged out");
         }
     }
