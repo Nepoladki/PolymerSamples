@@ -16,7 +16,7 @@ namespace PolymerSamples.Repository
 
         public async Task<ICollection<CodeIncludesVaultsDTO>> GetAllCodesIncludingVaultsAsync()
         {
-            return await _context.Codes
+            var codes = await _context.Codes
                 .AsNoTracking()
                 .Select(c => new CodeIncludesVaultsDTO
                 {
@@ -37,8 +37,10 @@ namespace PolymerSamples.Repository
                     type = c.SampleType.TypeName,
                     note = c.Note
                 })
-                .OrderBy(c => c.short_code_name)
+                .OrderBy(c => c.type)
                 .ToListAsync();
+
+            return codes.OrderBy(c => c.short_code_name, new CodesIncludesVaultsComparer()).ToList();
         }
 
         public async Task<Codes> GetCodeByIdAsync(Guid id)
