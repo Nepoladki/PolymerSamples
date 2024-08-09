@@ -97,7 +97,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 // CORS setup
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("defaultPolicy", policyBuilder =>
+    options.AddPolicy("AllAlways", policyBuilder =>
     {
         policyBuilder.WithOrigins(builder.Configuration.GetSection("CorsOptions:Origins").Get<string[]>());
         policyBuilder.AllowAnyHeader();
@@ -119,7 +119,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
 app.UseSwaggerUI();
 }
-app.UseCors("defaultPolicy");
+app.UseCors("AllAlways");
 
 app.UseExceptionHandler("/error");
 
@@ -127,7 +127,7 @@ app.UseHttpsRedirection();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None,
+    MinimumSameSitePolicy = SameSiteMode.Strict,
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });

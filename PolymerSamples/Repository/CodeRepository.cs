@@ -37,10 +37,9 @@ namespace PolymerSamples.Repository
                     type = c.SampleType.TypeName,
                     note = c.Note
                 })
-                .OrderBy(c => c.type)
                 .ToListAsync();
 
-            return codes.OrderBy(c => c.short_code_name, new CodesIncludesVaultsComparer()).ToList();
+            return codes.OrderBy(c => c, new CodesIncludesVaultsComparer()).ToList();
         }
 
         public async Task<Codes> GetCodeByIdAsync(Guid id)
