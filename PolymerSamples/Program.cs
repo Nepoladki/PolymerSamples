@@ -10,11 +10,10 @@ using System.Text;
 using Microsoft.AspNet.Identity;
 using Npgsql;
 using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
+using PolymerSamples.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-
 
 // Add services to the container.
 
@@ -29,6 +28,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddSingleton<ICodeValidator, CodeValidation>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -135,4 +135,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

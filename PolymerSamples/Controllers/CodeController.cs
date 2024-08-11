@@ -14,9 +14,11 @@ namespace PolymerSamples.Controllers
     public class CodeController : ControllerBase
     {
         private readonly ICodeRepository _codesRepository;
-        public CodeController(ICodeRepository codesRepository)
+        private readonly ICodeValidator _codeValidator;
+        public CodeController(ICodeRepository codesRepository, ICodeValidator codeValidator)
         {
             _codesRepository = codesRepository;
+            _codeValidator = codeValidator;
         }
 
         [HttpGet]
@@ -49,7 +51,7 @@ namespace PolymerSamples.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateCodeAsync([FromBody] CodeDTO newCode) 
         {
-            if(newCode is null)
+            if (newCode is null)
                 return BadRequest("Invalid code object");
 
             var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.code_name);

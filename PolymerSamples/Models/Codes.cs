@@ -14,7 +14,7 @@ namespace PolymerSamples.Models
         public int? TypeId { get; set; }
         public int? Layers { get; set; }
         public float? Thickness { get; set; }
-        public ICollection<CodesVaults> CodeVaults { get; set; }
-        public SampleTypes SampleType { get; set; }
+        public ICollection<CodesVaults> CodeVaults { get; set; } = null!;
+        public SampleTypes SampleType { get; set; } = null!;
     }
 }
