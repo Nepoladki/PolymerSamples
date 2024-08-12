@@ -3,6 +3,7 @@ using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.DTO;
+using PolymerSamples.Sorting;
 
 namespace PolymerSamples.Repository
 {
@@ -16,7 +17,7 @@ namespace PolymerSamples.Repository
 
         public async Task<ICollection<CodeIncludesVaultsDTO>> GetAllCodesIncludingVaultsAsync()
         {
-            return await _context.Codes
+            var codes = await _context.Codes
                 .AsNoTracking()
                 .Select(c => new CodeIncludesVaultsDTO
                 {
@@ -37,8 +38,9 @@ namespace PolymerSamples.Repository
                     type = c.SampleType.TypeName,
                     note = c.Note
                 })
-                .OrderBy(c => c.short_code_name)
                 .ToListAsync();
+
+            return codes.OrderBy(c => c, new CodesIncludesVaultsComparer()).ToList();
         }
 
         public async Task<Codes> GetCodeByIdAsync(Guid id)
