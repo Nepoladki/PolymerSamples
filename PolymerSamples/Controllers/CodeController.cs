@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolymerSamples.Authorization;
 using PolymerSamples.DTO;
 using PolymerSamples.Interfaces;
+using PolymerSamples.Migrations;
 using PolymerSamples.Models;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -47,12 +48,16 @@ namespace PolymerSamples.Controllers
         [Authorize(Policy = AuthData.EditorPolicyName)]
         [HttpPost]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateCodeAsync([FromBody] CodeDTO newCode) 
         {
             if (newCode is null)
                 return BadRequest("Invalid code object");
+
+            if (!_codeValidator.ValidateCode(newCode))
+                return BadRequest("Invalid ShortCodeName");
 
             var existingCode = await _codesRepository.GetCodeByNameAsync(newCode.code_name);
 
@@ -94,6 +99,9 @@ namespace PolymerSamples.Controllers
         {
             if (codeDto is null)
                 return BadRequest("Invalid code object");
+
+            if (!_codeValidator.ValidateCode(codeDto))
+                return BadRequest("Invalid ShortCodeName");
 
             if (!await _codesRepository.CodeExistsAsync(codeId))
                 return NotFound($"Did not found code with id {codeId}");
