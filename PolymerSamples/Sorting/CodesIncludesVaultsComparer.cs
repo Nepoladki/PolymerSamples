@@ -1,7 +1,7 @@
 ﻿using PolymerSamples.DTO;
 using PolymerSamples.Models;
 
-namespace PolymerSamples.Interfaces;
+namespace PolymerSamples.Sorting;
 
 public class CodesIncludesVaultsComparer : IComparer<CodeIncludesVaultsDTO>
 {

@@ -3,6 +3,7 @@ using PolymerSamples.Data;
 using PolymerSamples.Interfaces;
 using PolymerSamples.Models;
 using PolymerSamples.DTO;
+using PolymerSamples.Sorting;
 
 namespace PolymerSamples.Repository
 {
